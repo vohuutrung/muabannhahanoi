@@ -1,34 +1,51 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Filter, Grid3X3, List, ChevronDown, MapPin, SlidersHorizontal } from "lucide-react";
+import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { PropertyCard } from "@/components/PropertyCard";
-import { FilterSidebar } from "@/components/FilterSidebar";
+import { PropertyCardNew } from "@/components/PropertyCardNew";
+import { FilterTabs } from "@/components/FilterTabs";
+import { ActiveFilters } from "@/components/ActiveFilters";
 import { FilterModal } from "@/components/FilterModal";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/data/mockData";
+import { mockProperties } from "@/data/properties";
+import { usePropertyFilter } from "@/hooks/usePropertyFilter";
+import { SORT_OPTIONS, FilterState } from "@/types/property";
 import { cn } from "@/lib/utils";
-
-const sortOptions = [
-  { label: "Mới nhất", value: "newest" },
-  { label: "Giá thấp đến cao", value: "price-asc" },
-  { label: "Giá cao đến thấp", value: "price-desc" },
-  { label: "Diện tích lớn nhất", value: "area-desc" },
-];
+import { Helmet } from "react-helmet-async";
 
 export default function Listing() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState(sortOptions[0]);
+
+  const {
+    filters,
+    filteredProperties,
+    updateFilter,
+    toggleArrayFilter,
+    resetFilters,
+    activeFiltersCount,
+    getActiveFilterLabels,
+    clearFilter,
+  } = usePropertyFilter(mockProperties);
+
+  const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
 
   return (
     <Layout>
+      <Helmet>
+        <title>Nhà đất bán tại Hà Nội - Mua bán bất động sản giá tốt | BatDongSan</title>
+        <meta 
+          name="description" 
+          content="Tìm kiếm nhà đất bán tại Hà Nội. Hàng nghìn tin đăng mua bán nhà riêng, căn hộ, biệt thự, đất nền giá tốt. Cập nhật liên tục, thông tin chính xác." 
+        />
+      </Helmet>
+
       {/* Breadcrumb */}
       <div className="bg-secondary border-b border-border">
         <div className="container-custom py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-muted-foreground hover:text-primary">
+            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
               Trang chủ
             </Link>
             <span className="text-muted-foreground">/</span>
@@ -37,16 +54,17 @@ export default function Listing() {
         </div>
       </div>
 
-      {/* Header */}
+      {/* Header & Filters */}
       <div className="bg-card border-b border-border sticky top-16 z-30">
         <div className="container-custom py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Title & Controls */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-foreground">
-                Nhà đất bán tại Việt Nam
+                Nhà đất bán tại Hà Nội
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Hiện có <span className="text-primary font-semibold">15,234</span> bất động sản
+                Hiện có <span className="text-primary font-semibold">{filteredProperties.length}</span> bất động sản
               </p>
             </div>
 
@@ -59,6 +77,11 @@ export default function Listing() {
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Bộ lọc
+                {activeFiltersCount > 0 && (
+                  <span className="ml-1 w-5 h-5 rounded-full bg-primary-foreground text-primary text-xs flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </Button>
 
               {/* Sort Dropdown */}
@@ -66,23 +89,23 @@ export default function Listing() {
                 <Button
                   variant="filter"
                   onClick={() => setSortOpen(!sortOpen)}
-                  className="min-w-[140px] justify-between"
+                  className="min-w-[160px] justify-between"
                 >
                   {selectedSort.label}
                   <ChevronDown className={cn("w-4 h-4 transition-transform", sortOpen && "rotate-180")} />
                 </Button>
                 {sortOpen && (
-                  <div className="absolute right-0 top-full mt-2 bg-card rounded-lg shadow-lg border border-border py-2 min-w-[180px] z-10 animate-fade-in">
-                    {sortOptions.map((option) => (
+                  <div className="absolute right-0 top-full mt-2 bg-card rounded-lg shadow-lg border border-border py-2 min-w-[200px] z-50 animate-fade-in">
+                    {SORT_OPTIONS.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => {
-                          setSelectedSort(option);
+                          updateFilter("sortBy", option.value as FilterState["sortBy"]);
                           setSortOpen(false);
                         }}
                         className={cn(
                           "w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors",
-                          selectedSort.value === option.value && "text-primary font-medium"
+                          filters.sortBy === option.value && "text-primary font-medium bg-accent"
                         )}
                       >
                         {option.label}
@@ -100,6 +123,7 @@ export default function Listing() {
                     "p-2 transition-colors",
                     viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                   )}
+                  aria-label="Xem dạng lưới"
                 >
                   <Grid3X3 className="w-5 h-5" />
                 </button>
@@ -109,6 +133,7 @@ export default function Listing() {
                     "p-2 transition-colors",
                     viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                   )}
+                  aria-label="Xem dạng danh sách"
                 >
                   <List className="w-5 h-5" />
                 </button>
@@ -116,20 +141,22 @@ export default function Listing() {
             </div>
           </div>
 
+          {/* Filter Tabs - Desktop */}
+          <div className="hidden lg:block">
+            <FilterTabs
+              filters={filters}
+              onUpdateFilter={updateFilter}
+              onToggleArrayFilter={toggleArrayFilter}
+            />
+          </div>
+
           {/* Active Filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            <span className="filter-chip active">
-              Hà Nội <button className="ml-1 text-primary-foreground/70 hover:text-primary-foreground">×</button>
-            </span>
-            <span className="filter-chip active">
-              1-3 tỷ <button className="ml-1 text-primary-foreground/70 hover:text-primary-foreground">×</button>
-            </span>
-            <span className="filter-chip active">
-              2+ phòng ngủ <button className="ml-1 text-primary-foreground/70 hover:text-primary-foreground">×</button>
-            </span>
-            <button className="text-primary text-sm font-medium hover:underline">
-              Xóa tất cả
-            </button>
+          <div className="mt-4">
+            <ActiveFilters
+              labels={getActiveFilterLabels}
+              onClear={clearFilter}
+              onReset={resetFilters}
+            />
           </div>
         </div>
       </div>
@@ -137,24 +164,27 @@ export default function Listing() {
       {/* Content */}
       <div className="bg-background">
         <div className="container-custom py-6">
-          <div className="flex gap-6">
-            {/* Sidebar - Desktop */}
-            <aside className="hidden lg:block w-72 shrink-0">
-              <FilterSidebar />
-            </aside>
-
-            {/* Listings */}
-            <div className="flex-1">
+          {filteredProperties.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg mb-4">
+                Không tìm thấy bất động sản phù hợp với bộ lọc của bạn.
+              </p>
+              <Button onClick={resetFilters} variant="outline">
+                Xóa bộ lọc
+              </Button>
+            </div>
+          ) : (
+            <>
               {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                  {mockProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                  {filteredProperties.map((property) => (
+                    <PropertyCardNew key={property.id} property={property} />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {mockProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} variant="horizontal" />
+                  {filteredProperties.map((property) => (
+                    <PropertyCardNew key={property.id} property={property} variant="horizontal" />
                   ))}
                 </div>
               )}
@@ -164,7 +194,7 @@ export default function Listing() {
                 <Button variant="outline" size="sm" disabled>
                   Trước
                 </Button>
-                {[1, 2, 3, 4, 5].map((page) => (
+                {[1, 2, 3].map((page) => (
                   <Button
                     key={page}
                     variant={page === 1 ? "default" : "outline"}
@@ -174,21 +204,25 @@ export default function Listing() {
                     {page}
                   </Button>
                 ))}
-                <span className="text-muted-foreground">...</span>
-                <Button variant="outline" size="sm" className="w-10">
-                  50
-                </Button>
                 <Button variant="outline" size="sm">
                   Sau
                 </Button>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Filter Modal - Mobile */}
-      <FilterModal isOpen={filterModalOpen} onClose={() => setFilterModalOpen(false)} />
+      <FilterModal 
+        isOpen={filterModalOpen} 
+        onClose={() => setFilterModalOpen(false)}
+        filters={filters}
+        onUpdateFilter={updateFilter}
+        onToggleArrayFilter={toggleArrayFilter}
+        onReset={resetFilters}
+        resultCount={filteredProperties.length}
+      />
     </Layout>
   );
 }
