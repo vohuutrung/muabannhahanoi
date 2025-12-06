@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Building2, Home, MapPin, TrendingUp } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyCard } from "@/components/PropertyCard";
@@ -7,7 +7,22 @@ import { AreaCard } from "@/components/AreaCard";
 import { Button } from "@/components/ui/button";
 import { mockProperties, mockNews, mockAreas } from "@/data/mockData";
 
+const QUICK_DISTRICTS = [
+  { label: "Thanh Xuân", value: "thanh-xuan" },
+  { label: "Đống Đa", value: "dong-da" },
+  { label: "Cầu Giấy", value: "cau-giay" },
+  { label: "Ba Đình", value: "ba-dinh" },
+  { label: "Hà Đông", value: "ha-dong" },
+  { label: "Hai Bà Trưng", value: "hai-ba-trung" },
+];
+
 export default function Index() {
+  const navigate = useNavigate();
+
+  const handleDistrictClick = (district: string) => {
+    navigate(`/nha-dat-ban?district=${district}`);
+  };
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -57,14 +72,20 @@ export default function Index() {
                 </Button>
               </div>
 
-              {/* Quick Filters */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                <span className="text-sm text-muted-foreground">Tìm nhanh:</span>
-                <button className="filter-chip">Hà Nội</button>
-                <button className="filter-chip">TP.HCM</button>
-                <button className="filter-chip">Đà Nẵng</button>
-                <button className="filter-chip">Dưới 2 tỷ</button>
-                <button className="filter-chip">2 - 5 tỷ</button>
+              {/* Quick District Search */}
+              <div className="flex items-center gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Tìm nhanh:</span>
+                <div className="flex gap-2">
+                  {QUICK_DISTRICTS.map((district) => (
+                    <button
+                      key={district.value}
+                      onClick={() => handleDistrictClick(district.value)}
+                      className="filter-chip whitespace-nowrap hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      {district.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

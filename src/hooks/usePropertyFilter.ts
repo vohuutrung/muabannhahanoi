@@ -22,8 +22,11 @@ const initialFilterState: FilterState = {
   sortBy: "newest",
 };
 
-export function usePropertyFilter(properties: Property[]) {
-  const [filters, setFilters] = useState<FilterState>(initialFilterState);
+export function usePropertyFilter(properties: Property[], initialDistrict?: string) {
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...initialFilterState,
+    district: initialDistrict || "all",
+  }));
 
   const updateFilter = useCallback(<K extends keyof FilterState>(
     key: K,
@@ -117,6 +120,8 @@ export function usePropertyFilter(properties: Property[]) {
         "cau-giay": "Cầu Giấy",
         "ba-dinh": "Ba Đình",
         "hoan-kiem": "Hoàn Kiếm",
+        "ha-dong": "Hà Đông",
+        "hai-ba-trung": "Hai Bà Trưng",
       };
       labels.push({ key: "district", label: districts[filters.district] || filters.district });
     }
