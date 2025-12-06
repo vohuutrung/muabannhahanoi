@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Building2, Home, MapPin, TrendingUp } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -6,6 +7,7 @@ import { NewsCard } from "@/components/NewsCard";
 import { AreaCard } from "@/components/AreaCard";
 import { Button } from "@/components/ui/button";
 import { mockProperties, mockNews, mockAreas } from "@/data/mockData";
+import { cn } from "@/lib/utils";
 
 const QUICK_DISTRICTS = [
   { label: "Thanh Xuân", value: "thanh-xuan" },
@@ -16,11 +18,29 @@ const QUICK_DISTRICTS = [
   { label: "Hai Bà Trưng", value: "hai-ba-trung" },
 ];
 
+const CATEGORY_TABS = [
+  { label: "Nhà đất bán", value: "nha-dat-ban", path: "/nha-dat-ban", icon: Home },
+  { label: "Cho thuê", value: "cho-thue", path: "/cho-thue", icon: Building2 },
+  { label: "Dự án", value: "du-an", path: "/du-an", icon: TrendingUp },
+];
+
 export default function Index() {
   const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState("nha-dat-ban");
 
   const handleDistrictClick = (district: string) => {
-    navigate(`/nha-dat-ban?district=${district}`);
+    const currentTab = CATEGORY_TABS.find((tab) => tab.value === activeCategory);
+    navigate(`${currentTab?.path || "/nha-dat-ban"}?district=${district}`);
+  };
+
+  const handleCategoryClick = (category: typeof CATEGORY_TABS[0]) => {
+    setActiveCategory(category.value);
+    navigate(category.path);
+  };
+
+  const handleSearch = () => {
+    const currentTab = CATEGORY_TABS.find((tab) => tab.value === activeCategory);
+    navigate(currentTab?.path || "/nha-dat-ban");
   };
 
   return (
@@ -40,20 +60,24 @@ export default function Index() {
 
             {/* Search Box */}
             <div className="bg-card rounded-xl p-4 md:p-6 shadow-lg animate-slide-up">
-              {/* Search Tabs */}
-              <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
-                <button className="filter-chip active whitespace-nowrap">
-                  <Home className="w-4 h-4 inline mr-1" />
-                  Nhà đất bán
-                </button>
-                <button className="filter-chip whitespace-nowrap">
-                  <Building2 className="w-4 h-4 inline mr-1" />
-                  Cho thuê
-                </button>
-                <button className="filter-chip whitespace-nowrap">
-                  <TrendingUp className="w-4 h-4 inline mr-1" />
-                  Dự án
-                </button>
+              {/* Category Tabs */}
+              <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
+                {CATEGORY_TABS.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => handleCategoryClick(tab)}
+                      className={cn(
+                        "filter-chip whitespace-nowrap transition-colors flex items-center gap-1.5",
+                        activeCategory === tab.value && "active"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Search Input */}
@@ -66,7 +90,7 @@ export default function Index() {
                     className="input-search pl-10"
                   />
                 </div>
-                <Button size="lg" className="md:w-auto">
+                <Button size="lg" className="md:w-auto" onClick={handleSearch}>
                   <Search className="w-5 h-5 mr-2" />
                   Tìm kiếm
                 </Button>
