@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ArrowRight, Building2, Home, MapPin, TrendingUp } from "lucide-react";
+import { Search, ArrowRight, Home, MapPin } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyCard } from "@/components/PropertyCard";
 import { NewsCard } from "@/components/NewsCard";
 import { AreaCard } from "@/components/AreaCard";
 import { Button } from "@/components/ui/button";
 import { mockProperties, mockNews, mockAreas } from "@/data/mockData";
-import { cn } from "@/lib/utils";
 
 const QUICK_DISTRICTS = [
   { label: "Thanh Xuân", value: "thanh-xuan" },
@@ -18,29 +17,24 @@ const QUICK_DISTRICTS = [
   { label: "Hai Bà Trưng", value: "hai-ba-trung" },
 ];
 
-const CATEGORY_TABS = [
-  { label: "Nhà đất bán", value: "nha-dat-ban", path: "/nha-dat-ban", icon: Home },
-  { label: "Cho thuê", value: "cho-thue", path: "/cho-thue", icon: Building2 },
-  { label: "Dự án", value: "du-an", path: "/du-an", icon: TrendingUp },
-];
-
 export default function Index() {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState("nha-dat-ban");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDistrictClick = (district: string) => {
-    const currentTab = CATEGORY_TABS.find((tab) => tab.value === activeCategory);
-    navigate(`${currentTab?.path || "/nha-dat-ban"}?district=${district}`);
-  };
-
-  const handleCategoryClick = (category: typeof CATEGORY_TABS[0]) => {
-    setActiveCategory(category.value);
-    navigate(category.path);
+    navigate(`/nha-dat-ban?district=${district}`);
   };
 
   const handleSearch = () => {
-    const currentTab = CATEGORY_TABS.find((tab) => tab.value === activeCategory);
-    navigate(currentTab?.path || "/nha-dat-ban");
+    if (searchQuery.trim()) {
+      navigate(`/nha-dat-ban?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -60,24 +54,12 @@ export default function Index() {
 
             {/* Search Box */}
             <div className="bg-card rounded-xl p-4 md:p-6 shadow-lg animate-slide-up">
-              {/* Category Tabs */}
-              <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
-                {CATEGORY_TABS.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.value}
-                      onClick={() => handleCategoryClick(tab)}
-                      className={cn(
-                        "filter-chip whitespace-nowrap transition-colors flex items-center gap-1.5",
-                        activeCategory === tab.value && "active"
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {tab.label}
-                    </button>
-                  );
-                })}
+              {/* Category Label */}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="filter-chip active flex items-center gap-1.5">
+                  <Home className="w-4 h-4" />
+                  Nhà đất bán
+                </span>
               </div>
 
               {/* Search Input */}
@@ -88,9 +70,17 @@ export default function Index() {
                     type="text"
                     placeholder="Nhập địa điểm, quận/huyện, phường/xã..."
                     className="input-search pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
-                <Button size="lg" className="md:w-auto" onClick={handleSearch}>
+                <Button 
+                  size="lg" 
+                  className="md:w-auto" 
+                  onClick={handleSearch}
+                  disabled={!searchQuery.trim()}
+                >
                   <Search className="w-5 h-5 mr-2" />
                   Tìm kiếm
                 </Button>

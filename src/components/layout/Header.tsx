@@ -6,8 +6,6 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { label: "Nhà đất bán", href: "/nha-dat-ban" },
-  { label: "Cho thuê", href: "/cho-thue" },
-  { label: "Dự án", href: "/du-an" },
   { label: "Tin tức", href: "/tin-tuc" },
   { label: "Liên hệ", href: "/lien-he" },
 ];
