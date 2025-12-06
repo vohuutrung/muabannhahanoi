@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyCardNew } from "@/components/PropertyCardNew";
@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
 
 export default function Listing() {
+  const [searchParams] = useSearchParams();
+  const initialDistrict = searchParams.get("district") || undefined;
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
@@ -27,7 +30,7 @@ export default function Listing() {
     activeFiltersCount,
     getActiveFilterLabels,
     clearFilter,
-  } = usePropertyFilter(mockProperties);
+  } = usePropertyFilter(mockProperties, initialDistrict);
 
   const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
 
