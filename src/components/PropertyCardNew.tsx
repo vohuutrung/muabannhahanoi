@@ -9,7 +9,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCardNew({ property, variant = "vertical" }: PropertyCardProps) {
-  const url = `/nha-ban/${property.district}/${property.slug}`;
+  const url = `/nha-dat-ban/${property.slug}`;
 
   if (variant === "horizontal") {
     return (
