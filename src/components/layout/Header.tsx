@@ -26,7 +26,7 @@ export function Header() {
             <img
               src="/Logo.png"
               alt="Muabannhahanoi.vn"
-              className="h-16 w-auto object-contain"
+              className="h-18 w-auto object-contain"
             />
           </Link>
 
