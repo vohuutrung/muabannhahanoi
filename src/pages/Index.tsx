@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ArrowRight, Home, MapPin } from "lucide-react";
+import { Search, ArrowRight, Home } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyCard } from "@/components/PropertyCard";
 import { NewsCard } from "@/components/NewsCard";
 import { AreaCard } from "@/components/AreaCard";
 import { Button } from "@/components/ui/button";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 import { mockProperties, mockNews, mockAreas } from "@/data/mockData";
-
 const QUICK_DISTRICTS = [
   { label: "Thanh Xuân", value: "thanh-xuan" },
   { label: "Đống Đa", value: "dong-da" },
@@ -34,6 +34,14 @@ export default function Index() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch();
+    }
+  };
+
+  const handleAutocompleteSelect = (type: "district" | "propertyType", value: string) => {
+    if (type === "district") {
+      navigate(`/nha-dat-ban?district=${value}`);
+    } else {
+      navigate(`/nha-dat-ban?propertyType=${value}`);
     }
   };
 
@@ -64,17 +72,13 @@ export default function Index() {
 
               {/* Search Input */}
               <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Nhập địa điểm, quận/huyện, phường/xã..."
-                    className="input-search pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                  />
-                </div>
+                <SearchAutocomplete
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onSelect={handleAutocompleteSelect}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Nhập địa điểm, quận/huyện, loại nhà..."
+                />
                 <Button 
                   size="lg" 
                   className="md:w-auto" 
