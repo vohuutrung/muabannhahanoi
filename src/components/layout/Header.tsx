@@ -30,17 +30,19 @@ export function Header() {
             />
           </Link>
 
-          {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-6">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm nhà đất..."
-                className="input-search pl-10"
-              />
-            </div>
-          </div>
+          {/* 
+<div className="hidden md:flex flex-1 max-w-xl mx-6">
+  <div className="relative w-full">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+    <input
+      type="text"
+      placeholder="Tìm kiếm nhà đất..."
+      className="input-search pl-10"
+    />
+  </div>
+</div>
+*/}
+
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
