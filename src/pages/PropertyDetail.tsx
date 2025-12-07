@@ -1,7 +1,7 @@
 import { Heart, Bath, BedDouble, Layers, MapPin } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import useFavorites from "@/hooks/useFavorites";
+import { useFavorites } from "@/hooks/useFavorites";   // SỬA ĐÚNG IMPORT
 
 interface PropertyDetailProps {
   property: {
@@ -21,15 +21,13 @@ interface PropertyDetailProps {
 }
 
 export default function PropertyDetail({ property }: PropertyDetailProps) {
-  // ------------------------------
-  // FAVORITES LOGIC
-  // ------------------------------
   const { favorites, toggleFavorite } = useFavorites();
+
   const isFavorited = favorites.includes(property.id);
 
   return (
     <div className="container py-6 space-y-6">
-      {/* Breadcrumb */}
+
       <Breadcrumb
         items={[
           { label: "Trang chủ", href: "/" },
@@ -39,14 +37,13 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
         ]}
       />
 
-      {/* Header */}
+      {/* Header + HEART BUTTON */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{property.title}</h1>
           <p className="text-muted-foreground">{property.address}</p>
         </div>
 
-        {/* HEART BUTTON FIXED */}
         <button
           onClick={() => toggleFavorite(property.id)}
           aria-label="Lưu tin"
@@ -57,10 +54,8 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
           }`}
         >
           <Heart
-            className={`w-5 h-5 transition-transform ${
-              isFavorited
-                ? "fill-current animate-[pop_0.25s_ease-in-out]"
-                : ""
+            className={`w-5 h-5 ${
+              isFavorited ? "fill-current animate-[pop_0.25s_ease-in-out]" : ""
             }`}
           />
         </button>
@@ -69,9 +64,11 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
       {/* PRICE */}
       <div className="text-3xl font-bold text-primary">
         {formatCurrency(property.price)}
-        <span className="ml-2 text-base text-muted-foreground">
-          {property.pricePerM2 ? `~${formatCurrency(property.pricePerM2)}/m²` : ""}
-        </span>
+        {property.pricePerM2 && (
+          <span className="ml-2 text-base text-muted-foreground">
+            ~{formatCurrency(property.pricePerM2)}/m²
+          </span>
+        )}
       </div>
 
       {/* IMAGES */}
@@ -93,7 +90,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
         </div>
       </div>
 
-      {/* INFO GRID */}
+      {/* INFO */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-card p-4 rounded-lg">
         <div className="flex items-center gap-2">
           <BedDouble className="w-5 h-5 text-primary" />
@@ -118,6 +115,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
         <h2 className="text-xl font-bold">Mô tả chi tiết</h2>
         <p className="leading-relaxed">{property.description}</p>
       </div>
+
     </div>
   );
 }
