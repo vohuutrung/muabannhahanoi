@@ -34,21 +34,23 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
     toggleFavorite(property.id);
   };
 
+  // 👉 TẠO 4 ẢNH THU NHỎ (dựa trên ảnh gốc)
+  const previewImages = [
+    property.image,
+    property.image + "&1",
+    property.image + "&2",
+    property.image + "&3",
+  ];
+
+  // ========================= HORIZONTAL CARD =========================
   if (variant === "horizontal") {
     return (
       <Link to={`/nha-dat-ban/${property.id}`} className="property-card flex gap-4 p-3">
         <div className="relative w-32 h-24 sm:w-40 sm:h-28 shrink-0 rounded-lg overflow-hidden">
-          <img
-            src={property.image}
-            alt={property.title}
-            className="w-full h-full object-cover"
-          />
-          {property.isHot && (
-            <span className="badge-hot absolute top-2 left-2">HOT</span>
-          )}
-          {property.isVip && (
-            <span className="badge-vip absolute top-2 left-2">VIP</span>
-          )}
+          <img src={property.image} alt={property.title} className="w-full h-full object-cover" />
+          {property.isHot && <span className="badge-hot absolute top-2 left-2">HOT</span>}
+          {property.isVip && <span className="badge-vip absolute top-2 left-2">VIP</span>}
+
           <button
             onClick={handleFavoriteClick}
             className={cn(
@@ -61,97 +63,69 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
             <Heart className={cn("w-3.5 h-3.5", favorited && "fill-current")} />
           </button>
         </div>
+
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground mb-1">
-            {property.title}
-          </h3>
+          <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-1">{property.title}</h3>
+
           <p className="text-price text-sm sm:text-base mb-1">
-            {property.price} · <span className="text-muted-foreground font-normal">{property.area}</span>
+            {property.price} · <span className="text-muted-foreground">{property.area}</span>
           </p>
-          <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1 mb-2">
+
+          <p className="text-muted-foreground text-xs flex items-center gap-1 mb-2">
             <MapPin className="w-3 h-3" />
-            <span className="line-clamp-1">{property.address}</span>
+            {property.address}
           </p>
-          <div className="flex items-center gap-3 text-muted-foreground text-xs">
-            {property.bedrooms && (
-              <span className="flex items-center gap-1">
-                <BedDouble className="w-3 h-3" /> {property.bedrooms}
-              </span>
-            )}
-            {property.bathrooms && (
-              <span className="flex items-center gap-1">
-                <Bath className="w-3 h-3" /> {property.bathrooms}
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {property.postedDate}
-            </span>
-          </div>
         </div>
       </Link>
     );
   }
 
+  // ========================= VERTICAL / HOMEPAGE =========================
   return (
     <Link to={`/nha-dat-ban/${property.id}`} className="property-card group">
       <div className="relative aspect-[4/3] overflow-hidden">
+
+        {/* ẢNH CHÍNH */}
         <img
           src={property.image}
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
+
+        {/* ❤️ */}
         <button
           onClick={handleFavoriteClick}
           className={cn(
             "absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all",
             favorited
-              ? "bg-primary text-primary-foreground opacity-100"
-              : "bg-card/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "bg-card/80 backdrop-blur-sm opacity-70 hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
           )}
         >
           <Heart className={cn("w-4 h-4", favorited && "fill-current")} />
         </button>
-        {property.isHot && (
-          <span className="badge-hot absolute top-3 left-3">HOT</span>
-        )}
-        {property.isVip && (
-          <span className="badge-vip absolute top-3 left-3">VIP</span>
-        )}
+
+        {property.isHot && <span className="badge-hot absolute top-3 left-3">HOT</span>}
+        {property.isVip && <span className="badge-vip absolute top-3 left-3">VIP</span>}
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-base line-clamp-2 text-foreground mb-2 group-hover:text-primary transition-colors">
-          {property.title}
-        </h3>
-        <p className="text-price text-lg mb-1">{property.price}</p>
-        {property.pricePerM2 && (
-          <p className="text-muted-foreground text-sm mb-2">{property.pricePerM2}</p>
-        )}
-        <p className="text-muted-foreground text-sm flex items-center gap-1 mb-3">
-          <MapPin className="w-4 h-4 text-primary" />
-          <span className="line-clamp-1">{property.address}</span>
-        </p>
-        <div className="flex items-center justify-between border-t border-border pt-3">
-          <div className="flex items-center gap-3 text-muted-foreground text-sm">
-            <span className="flex items-center gap-1">
-              <Layers className="w-4 h-4" /> {property.area}
-            </span>
-            {property.bedrooms && (
-              <span className="flex items-center gap-1">
-                <BedDouble className="w-4 h-4" /> {property.bedrooms}
-              </span>
-            )}
-            {property.bathrooms && (
-              <span className="flex items-center gap-1">
-                <Bath className="w-4 h-4" /> {property.bathrooms}
-              </span>
-            )}
+
+      {/* ======= DÃY 4 ẢNH PREVIEW ======= */}
+      <div className="grid grid-cols-4 gap-1 mt-2 px-1">
+        {previewImages.map((img, idx) => (
+          <div key={idx} className="w-full h-12 rounded overflow-hidden">
+            <img src={img} className="w-full h-full object-cover" />
           </div>
-        </div>
-        <div className="flex items-center gap-1 text-muted-foreground text-xs mt-2">
-          <Clock className="w-3 h-3" />
-          <span>{property.postedDate}</span>
-        </div>
+        ))}
+      </div>
+
+      <div className="p-4">
+        <h3 className="font-semibold text-base line-clamp-2 mb-2">{property.title}</h3>
+        <p className="text-price text-lg mb-1">{property.price}</p>
+        {property.pricePerM2 && <p className="text-muted-foreground text-sm mb-2">{property.pricePerM2}</p>}
+
+        <p className="text-muted-foreground text-sm flex items-center gap-1 mb-3">
+          <MapPin className="w-4 h-4 text-primary" /> {property.address}
+        </p>
       </div>
     </Link>
   );
