@@ -1,43 +1,41 @@
+import { useParams } from "react-router-dom";
 import { Heart, Bath, BedDouble, Layers, MapPin } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { useFavorites } from "@/hooks/useFavorites";   // SỬA ĐÚNG IMPORT
+import { formatCurrency } from "@/lib/utils";
+import { useFavorites } from "@/hooks/useFavorites";
+import mockProperties from "@/data/mockProperties"; // CHẮC CHẮN CÓ FILE NÀY TRONG LOVABLE
 
-interface PropertyDetailProps {
-  property: {
-    id: string;
-    title: string;
-    price: number;
-    pricePerM2?: number;
-    address: string;
-    bedrooms: number;
-    bathrooms: number;
-    area: number;
-    images: string[];
-    description: string;
-    postedDate?: string;
-    district?: string;
-  };
-}
-
-export default function PropertyDetail({ property }: PropertyDetailProps) {
+export default function PropertyDetail() {
+  const { slug } = useParams();
   const { favorites, toggleFavorite } = useFavorites();
+
+  // Lấy property theo slug
+  const property = mockProperties.find((p) => p.slug === slug);
+
+  if (!property) {
+    return (
+      <div className="container py-10 text-center">
+        <h2 className="text-2xl font-bold">Không tìm thấy tin</h2>
+      </div>
+    );
+  }
 
   const isFavorited = favorites.includes(property.id);
 
   return (
     <div className="container py-6 space-y-6">
 
+      {/* Breadcrumb */}
       <Breadcrumb
         items={[
           { label: "Trang chủ", href: "/" },
           { label: "Nhà đất bán", href: "/nha-dat-ban" },
-          { label: property.district || "Khu vực", href: "#" },
+          { label: property.district || "", href: "#" },
           { label: property.title, href: "#" },
         ]}
       />
 
-      {/* Header + HEART BUTTON */}
+      {/* Title + Favorite */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{property.title}</h1>
@@ -46,22 +44,17 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
         <button
           onClick={() => toggleFavorite(property.id)}
-          aria-label="Lưu tin"
           className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
             isFavorited
-              ? "bg-primary text-primary-foreground"
+              ? "bg-primary text-white"
               : "bg-background hover:bg-primary/10"
           }`}
         >
-          <Heart
-            className={`w-5 h-5 ${
-              isFavorited ? "fill-current animate-[pop_0.25s_ease-in-out]" : ""
-            }`}
-          />
+          <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
         </button>
       </div>
 
-      {/* PRICE */}
+      {/* Price */}
       <div className="text-3xl font-bold text-primary">
         {formatCurrency(property.price)}
         {property.pricePerM2 && (
@@ -71,7 +64,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
         )}
       </div>
 
-      {/* IMAGES */}
+      {/* Images */}
       <div className="grid gap-4">
         <img
           src={property.images[0]}
@@ -90,30 +83,26 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
         </div>
       </div>
 
-      {/* INFO */}
+      {/* Info */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-card p-4 rounded-lg">
         <div className="flex items-center gap-2">
-          <BedDouble className="w-5 h-5 text-primary" />
-          <span>{property.bedrooms} phòng ngủ</span>
+          <BedDouble className="w-5 h-5 text-primary" /> {property.bedrooms} phòng ngủ
         </div>
         <div className="flex items-center gap-2">
-          <Bath className="w-5 h-5 text-primary" />
-          <span>{property.bathrooms} phòng tắm</span>
+          <Bath className="w-5 h-5 text-primary" /> {property.bathrooms} phòng tắm
         </div>
         <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 text-primary" />
-          <span>{property.area} m²</span>
+          <Layers className="w-5 h-5 text-primary" /> {property.area} m²
         </div>
         <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-primary" />
-          <span>{property.address}</span>
+          <MapPin className="w-5 h-5 text-primary" /> {property.address}
         </div>
       </div>
 
-      {/* DESCRIPTION */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">Mô tả chi tiết</h2>
-        <p className="leading-relaxed">{property.description}</p>
+      {/* Description */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Mô tả chi tiết</h2>
+        <p>{property.description}</p>
       </div>
 
     </div>
