@@ -25,7 +25,7 @@ export function Header() {
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
               src="/logo.png"
-              alt="Muabannhahanoi"
+              alt="Muabannhahanoi.vn"
               className="h-10 w-auto object-contain"
             />
           </Link>
