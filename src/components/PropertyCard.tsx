@@ -93,7 +93,7 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
   }
 
   return (
-    <Link to={`/chi-tiet/${property.id}`} className="property-card group">
+    <Link to={`/nha-dat-ban/${property.id}`} className="property-card group">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={property.image}
