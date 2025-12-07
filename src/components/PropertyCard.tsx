@@ -36,7 +36,7 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
 
   if (variant === "horizontal") {
     return (
-      <Link to={`/chi-tiet/${property.id}`} className="property-card flex gap-4 p-3">
+      <Link to={`/nha-dat-ban/${property.id}`} className="property-card flex gap-4 p-3">
         <div className="relative w-32 h-24 sm:w-40 sm:h-28 shrink-0 rounded-lg overflow-hidden">
           <img
             src={property.image}
