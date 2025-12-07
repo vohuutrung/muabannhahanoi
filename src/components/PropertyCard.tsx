@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { BedDouble, Bath, Layers, MapPin, Clock, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/hooks/useFavorites";
 
 export interface Property {
   id: string;
@@ -24,6 +25,15 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, variant = "vertical" }: PropertyCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(property.id);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(property.id);
+  };
+
   if (variant === "horizontal") {
     return (
       <Link to={`/chi-tiet/${property.id}`} className="property-card flex gap-4 p-3">
@@ -39,6 +49,17 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
           {property.isVip && (
             <span className="badge-vip absolute top-2 left-2">VIP</span>
           )}
+          <button
+            onClick={handleFavoriteClick}
+            className={cn(
+              "absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all",
+              favorited
+                ? "bg-primary text-primary-foreground"
+                : "bg-card/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground"
+            )}
+          >
+            <Heart className={cn("w-3.5 h-3.5", favorited && "fill-current")} />
+          </button>
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground mb-1">
@@ -81,13 +102,15 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
         />
         <div className="absolute inset-0 gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            // Handle favorite
-          }}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary hover:text-primary-foreground"
+          onClick={handleFavoriteClick}
+          className={cn(
+            "absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all",
+            favorited
+              ? "bg-primary text-primary-foreground opacity-100"
+              : "bg-card/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
+          )}
         >
-          <Heart className="w-4 h-4" />
+          <Heart className={cn("w-4 h-4", favorited && "fill-current")} />
         </button>
         {property.isHot && (
           <span className="badge-hot absolute top-3 left-3">HOT</span>

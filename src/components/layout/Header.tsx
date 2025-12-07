@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, ChevronDown, Phone } from "lucide-react";
+import { Menu, X, Search, Phone, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/hooks/useFavorites";
 
 const navLinks = [
   { label: "Nhà đất bán", href: "/nha-dat-ban" },
@@ -13,6 +14,7 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { favorites } = useFavorites();
 
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border">
@@ -61,6 +63,22 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3 ml-4">
+            <Link
+              to="/yeu-thich"
+              className={cn(
+                "relative p-2 rounded-lg transition-colors",
+                location.pathname === "/yeu-thich"
+                  ? "text-primary bg-accent"
+                  : "text-foreground/80 hover:text-primary hover:bg-accent"
+              )}
+            >
+              <Heart className="w-5 h-5" />
+              {favorites.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-medium rounded-full flex items-center justify-center">
+                  {favorites.length > 9 ? "9+" : favorites.length}
+                </span>
+              )}
+            </Link>
             <Button variant="outline" size="sm">
               <Phone className="w-4 h-4" />
               Hotline
@@ -113,6 +131,24 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              to="/yeu-thich"
+              onClick={() => setMobileMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                location.pathname === "/yeu-thich"
+                  ? "text-primary bg-accent"
+                  : "text-foreground/80 hover:text-primary hover:bg-accent"
+              )}
+            >
+              <Heart className="w-5 h-5" />
+              Tin đã lưu
+              {favorites.length > 0 && (
+                <span className="ml-auto bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5 rounded-full">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
             <div className="flex gap-3 mt-4 pt-4 border-t border-border">
               <Button variant="outline" className="flex-1">
                 <Phone className="w-4 h-4" />
