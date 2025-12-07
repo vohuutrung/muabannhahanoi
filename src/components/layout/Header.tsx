@@ -24,7 +24,7 @@ export function Header() {
           {/* Logo mới */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
-              src="/logo.png"
+              src="/Logo.png"
               alt="Muabannhahanoi.vn"
               className="h-10 w-auto object-contain"
             />
