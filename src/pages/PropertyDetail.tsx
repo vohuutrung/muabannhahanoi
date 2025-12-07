@@ -13,7 +13,7 @@ import { HANOI_DISTRICTS } from "@/types/property";
 import { Helmet } from "react-helmet-async";
 
 export default function PropertyDetail() {
-  const { slug, district } = useParams();
+  const { slug } = useParams();
   
   // Find property by slug
   const property = mockProperties.find((p) => p.slug === slug) || mockProperties[0];
@@ -55,7 +55,7 @@ export default function PropertyDetail() {
           name="description" 
           content={`${property.title}. Giá ${property.price}, diện tích ${property.area}. ${property.address}. Liên hệ ngay: ${property.contact.phone}`} 
         />
-        <link rel="canonical" href={`/nha-ban/${property.district}/${property.slug}`} />
+        <link rel="canonical" href={`/nha-dat-ban/${property.slug}`} />
       </Helmet>
 
       {/* Breadcrumb */}
