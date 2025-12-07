@@ -31,18 +31,8 @@ export function Header() {
           </Link>
 
           {/* 
-<div className="hidden md:flex flex-1 max-w-xl mx-6">
-  <div className="relative w-full">
-    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-    <input
-      type="text"
-      placeholder="Tìm kiếm nhà đất..."
-      className="input-search pl-10"
-    />
-  </div>
-</div>
-*/}
-
+          Desktop Search đã ẩn ở đây
+          */}
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -88,7 +78,7 @@ export function Header() {
             <Button size="sm">Đăng tin</Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Nút mở menu mobile */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg hover:bg-accent transition-colors"
@@ -101,7 +91,8 @@ export function Header() {
           </button>
         </div>
 
-        {/* Mobile Search */}
+        {/* 
+        Mobile Search – ĐÃ ẨN
         <div className="md:hidden pb-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -112,6 +103,7 @@ export function Header() {
             />
           </div>
         </div>
+        */}
       </div>
 
       {/* Mobile Menu */}
