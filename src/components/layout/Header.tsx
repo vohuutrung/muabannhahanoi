@@ -20,15 +20,14 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-card border-b border-border">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+
+          {/* Logo mới */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-10 h-10 rounded-lg gradient-hero flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">BĐS</span>
-            </div>
-            <div className="hidden sm:block">
-              <span className="font-bold text-lg text-foreground">NhàĐất</span>
-              <span className="text-primary font-bold text-lg">.vn</span>
-            </div>
+            <img
+              src="/logo.png"
+              alt="Muabannhahanoi"
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Search */}
@@ -51,7 +50,8 @@ export function Header() {
                 to={link.href}
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  location.pathname === link.href || location.pathname.startsWith(link.href + "/")
+                  location.pathname === link.href ||
+                    location.pathname.startsWith(link.href + "/")
                     ? "text-primary bg-accent"
                     : "text-foreground/80 hover:text-primary hover:bg-accent"
                 )}
@@ -131,6 +131,7 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+
             <Link
               to="/yeu-thich"
               onClick={() => setMobileMenuOpen(false)}
@@ -149,6 +150,7 @@ export function Header() {
                 </span>
               )}
             </Link>
+
             <div className="flex gap-3 mt-4 pt-4 border-t border-border">
               <Button variant="outline" className="flex-1">
                 <Phone className="w-4 h-4" />
