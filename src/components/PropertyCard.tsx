@@ -119,45 +119,46 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
       {/* VIP VÀNG / BẠC */}
 {(vip === "VANG" || vip === "BAC") && (
   <div className="p-1">
-    <div className="flex gap-2">
-      
-      {/* Ảnh lớn bên trái */}
-      <div className="relative flex-1">
-        <img
-          src={previewImages[0]}
-          className="w-full h-[220px] object-cover rounded-lg"
-        />
+    
+    {/* Ảnh to phía trên */}
+    <div className="relative w-full h-[220px] mb-2">
+      <img
+        src={previewImages[0]}
+        className="w-full h-full object-cover rounded-lg"
+      />
 
-        <span className={cn(
+      <span
+        className={cn(
           "absolute top-3 left-3 text-xs font-bold px-2 py-1 rounded-md",
           vip === "VANG" ? "bg-amber-500 text-white" : "bg-slate-400 text-white"
-        )}>
-          VIP {vip === "VANG" ? "VÀNG" : "BẠC"}
-        </span>
+        )}
+      >
+        VIP {vip === "VANG" ? "VÀNG" : "BẠC"}
+      </span>
 
-        <button
-          onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md"
-        >
-          <Heart className={cn("w-4 h-4", favorited && "fill-red-500")} />
-        </button>
-      </div>
-
-      {/* 2 ảnh nhỏ bên phải */}
-      <div className="flex flex-col gap-2 w-[140px]">
-        <img
-          src={previewImages[1]}
-          className="w-full h-[106px] object-cover rounded-lg"
-        />
-        <img
-          src={previewImages[2]}
-          className="w-full h-[106px] object-cover rounded-lg"
-        />
-      </div>
-
+      <button
+        onClick={handleFavoriteClick}
+        className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md"
+      >
+        <Heart className={cn("w-4 h-4", favorited && "fill-red-500")} />
+      </button>
     </div>
+
+    {/* 2 ảnh nhỏ phía dưới */}
+    <div className="grid grid-cols-2 gap-2">
+      <img
+        src={previewImages[1]}
+        className="w-full h-[100px] object-cover rounded-lg"
+      />
+      <img
+        src={previewImages[2]}
+        className="w-full h-[100px] object-cover rounded-lg"
+      />
+    </div>
+
   </div>
 )}
+
 
 
       {/* ---------------------- */}
