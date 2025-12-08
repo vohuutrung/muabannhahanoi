@@ -7,10 +7,12 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { mockProperties } from "@/data/properties";
 
 export default function PropertyDetail() {
-  const { slug } = useParams();
+  // LẤY ID TỪ URL (KHÔNG DÙNG SLUG NỮA)
+  const { id } = useParams();
   const { favorites, toggleFavorite } = useFavorites();
 
-  const property = mockProperties.find((p) => p.slug === slug);
+  // TÌM PROPERTY THEO ID
+  const property = mockProperties.find((p) => p.id === id);
 
   if (!property) {
     return (
@@ -65,8 +67,16 @@ export default function PropertyDetail() {
 
       {/* Gallery */}
       <PropertyGallery 
-        images={property.images} 
-        vipType={property.isVip ? "VIP DIAMOND" : property.isHot ? "HOT" : undefined}
+        images={property.images || [property.image]}
+        vipType={
+          property.vipType === "KIMCUONG"
+            ? "VIP KIM CƯƠNG"
+            : property.vipType === "VANG"
+            ? "VIP VÀNG"
+            : property.vipType === "BAC"
+            ? "VIP BẠC"
+            : undefined
+        }
       />
 
       {/* Info */}
@@ -92,7 +102,9 @@ export default function PropertyDetail() {
       {/* Description */}
       <div>
         <h2 className="text-xl font-bold mb-2">Mô tả chi tiết</h2>
-        <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+        <p className="text-muted-foreground leading-relaxed">
+          {property.description || "Chưa có mô tả."}
+        </p>
       </div>
     </div>
   );
