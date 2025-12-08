@@ -28,7 +28,7 @@ export const mockProperties: Property[] = [
     bathrooms: 2,
     image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
     postedDate: "Hôm qua",
-    isVip: true,
+    vipType: "KIMCUONG",
   },
   {
     id: "3",
@@ -42,6 +42,7 @@ export const mockProperties: Property[] = [
     floors: 3,
     image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
     postedDate: "2 ngày trước",
+    vipType: "VANG",
   },
   {
     id: "4",
@@ -55,6 +56,7 @@ export const mockProperties: Property[] = [
     floors: 4,
     image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80",
     postedDate: "3 ngày trước",
+    vipType: "BAC",
   },
   {
     id: "5",
