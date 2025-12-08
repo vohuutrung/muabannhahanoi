@@ -15,7 +15,7 @@ export const mockProperties: Property[] = [
     floors: 5,
     image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
     postedDate: "Hôm nay",
-    isHot: true,
+    vipType: "KIMCUONG",
   },
   {
     id: "2",
