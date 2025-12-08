@@ -238,12 +238,13 @@ export default function PropertyDetail() {
 
               <div className="flex flex-col gap-2">
                 <a
-                  href="tel:0996668800"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground py-2.5 text-sm font-semibold"
-                >
-                  <Phone className="w-4 h-4" />
-                  Gọi ngay
-                </a>
+  href="tel:0996668800"
+  className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg shadow-sm justify-center whitespace-nowrap min-w-[130px] font-semibold text-sm"
+>
+  <Phone className="w-4 h-4" />
+  <span>099 666 8800</span>
+</a>
+
 
                 <a
                   href="https://zalo.me/0996668800"
@@ -269,7 +270,7 @@ export default function PropertyDetail() {
           {/* Avatar môi giới */}
           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
             <img
-              src="/images/agent-trung.jpg"
+              src="/agent-trung.jpg"
               alt="Võ Hữu Trung"
               className="w-full h-full object-cover"
             />
@@ -280,7 +281,7 @@ export default function PropertyDetail() {
             href="https://zalo.me/0996668800"
             className="flex items-center gap-2 bg-white border px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
           >
-            <img src="/images/zalo-icon.png" className="w-5 h-5" />
+            <img src="/zalo-icon.png" className="w-5 h-5" />
             <span className="font-medium text-sm">Zalo</span>
           </a>
 
