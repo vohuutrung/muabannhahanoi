@@ -17,11 +17,9 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { mockProperties } from "@/data/properties";
 
 export default function PropertyDetail() {
-  // Lấy ID từ URL
   const { id } = useParams();
   const { favorites, toggleFavorite } = useFavorites();
 
-  // Tìm bất động sản theo ID
   const property = mockProperties.find((p) => p.id === id);
 
   if (!property) {
@@ -34,7 +32,6 @@ export default function PropertyDetail() {
 
   const isFavorited = favorites.includes(property.id);
 
-  // Gợi ý tin tương tự (cùng quận nếu có, hoặc đơn giản là khác ID)
   const similarProperties = mockProperties
     .filter((p) => p.id !== property.id)
     .slice(0, 4);
@@ -42,6 +39,7 @@ export default function PropertyDetail() {
   return (
     <>
       <div className="container py-4 lg:py-8 space-y-6 lg:space-y-8 pb-20 md:pb-10">
+
         {/* BREADCRUMB */}
         <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
           <Breadcrumb
@@ -54,7 +52,7 @@ export default function PropertyDetail() {
           />
         </div>
 
-        {/* HEADER: TIÊU ĐỀ + NÚT LƯU + NGÀY ĐĂNG */}
+        {/* HEADER */}
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-start gap-3">
             <div className="flex-1 min-w-0">
@@ -86,16 +84,10 @@ export default function PropertyDetail() {
               <Clock className="w-3 h-3" />
               <span>{property.postedDate || "Mới đăng"}</span>
             </div>
-            {property.district && (
-              <div className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                <span>{property.district}</span>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* GIÁ + THÔNG TIN TÓM TẮT */}
+        {/* GIÁ */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <div className="text-2xl sm:text-3xl font-bold text-primary">
@@ -110,9 +102,10 @@ export default function PropertyDetail() {
           </div>
         </div>
 
-        {/* GALLERY + CỘT THÔNG TIN BÊN PHẢI */}
+        {/* LAYOUT CHÍNH */}
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Cột trái: gallery + mô tả */}
+
+          {/* CỘT TRÁI */}
           <div className="lg:col-span-2 space-y-6">
             {/* GALLERY */}
             <PropertyGallery
@@ -128,107 +121,50 @@ export default function PropertyDetail() {
               }
             />
 
-            {/* THÔNG TIN TỔNG QUAN */}
+            {/* TỔNG QUAN */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Thông tin tổng quan</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-primary" />
-                  <div>
-                    <div className="font-medium">{property.area}</div>
-                    <div className="text-xs text-muted-foreground">
-                      Diện tích
-                    </div>
-                  </div>
-                </div>
+                <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Diện tích" value={property.area} />
 
                 {property.bedrooms && (
-                  <div className="flex items-center gap-2">
-                    <BedDouble className="w-4 h-4 text-primary" />
-                    <div>
-                      <div className="font-medium">
-                        {property.bedrooms} phòng
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Phòng ngủ
-                      </div>
-                    </div>
-                  </div>
+                  <Info icon={<BedDouble className="w-4 h-4 text-primary" />} label="Phòng ngủ" value={property.bedrooms} />
                 )}
 
                 {property.bathrooms && (
-                  <div className="flex items-center gap-2">
-                    <Bath className="w-4 h-4 text-primary" />
-                    <div>
-                      <div className="font-medium">
-                        {property.bathrooms} phòng
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Phòng tắm
-                      </div>
-                    </div>
-                  </div>
+                  <Info icon={<Bath className="w-4 h-4 text-primary" />} label="Phòng tắm" value={property.bathrooms} />
                 )}
 
                 {property.floors && (
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-primary" />
-                    <div>
-                      <div className="font-medium">{property.floors} tầng</div>
-                      <div className="text-xs text-muted-foreground">
-                        Số tầng
-                      </div>
-                    </div>
-                  </div>
+                  <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Số tầng" value={property.floors} />
                 )}
               </div>
             </section>
 
-            {/* MÔ TẢ CHI TIẾT */}
+            {/* MÔ TẢ */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Mô tả chi tiết</h2>
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {property.description || "Chưa có mô tả chi tiết cho bài đăng này."}
+                {property.description}
               </p>
             </section>
 
-            {/* ĐẶC ĐIỂM BẤT ĐỘNG SẢN (dùng lại các field có sẵn) */}
+            {/* ĐẶC ĐIỂM */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Đặc điểm bất động sản</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>Loại hình</span>
-                  <span className="font-medium text-foreground">
-                    Nhà riêng / Nhà phố
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Số tầng</span>
-                  <span className="font-medium text-foreground">
-                    {property.floors || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Số phòng ngủ</span>
-                  <span className="font-medium text-foreground">
-                    {property.bedrooms || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Số phòng tắm</span>
-                  <span className="font-medium text-foreground">
-                    {property.bathrooms || "—"}
-                  </span>
-                </div>
+                <DetailRow label="Loại hình" value="Nhà riêng / Nhà phố" />
+                <DetailRow label="Số tầng" value={property.floors || "—"} />
+                <DetailRow label="Số phòng ngủ" value={property.bedrooms || "—"} />
+                <DetailRow label="Số phòng tắm" value={property.bathrooms || "—"} />
               </div>
             </section>
 
-            {/* BẢN ĐỒ (dùng địa chỉ để nhúng Google Maps) */}
+            {/* MAP */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Vị trí trên bản đồ</h2>
-              <div className="text-sm text-muted-foreground mb-2">
-                {property.address}
-              </div>
+              <p className="text-sm text-muted-foreground mb-2">{property.address}</p>
+
               <div className="w-full overflow-hidden rounded-lg border">
                 <iframe
                   title="Bản đồ vị trí"
@@ -237,24 +173,63 @@ export default function PropertyDetail() {
                   )}&output=embed`}
                   className="w-full h-64 border-0"
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
             </section>
+
+            {/* TIN TƯƠNG TỰ */}
+            {similarProperties.length > 0 && (
+              <section className="space-y-4">
+                <h2 className="text-lg font-semibold">Tin đăng tương tự</h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {similarProperties.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`/nha-dat-ban/${item.id}`}
+                      className="block rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                        <div className="absolute bottom-2 left-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded-md line-clamp-1">
+                          {item.title}
+                        </div>
+                      </div>
+                      <div className="p-3 space-y-1">
+                        <div className="text-sm font-semibold text-primary">
+                          {item.price}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {item.address}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Diện tích: {item.area}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
-          {/* Cột phải: Thông tin môi giới */}
-          <div className="space-y-4 lg:space-y-6">
-            {/* BOX THÔNG TIN MÔI GIỚI – BẠN */}
+          {/* CỘT PHẢI – LIÊN HỆ (GHIM) */}
+          <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-24 h-fit">
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-4 shadow-sm border">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/agent-trung.jpg"
+                    alt="Võ Hữu Trung"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
+
                 <div>
-                  <div className="font-semibold text-base">
-                    Võ Hữu Trung
-                  </div>
+                  <div className="font-semibold text-base">Võ Hữu Trung</div>
                   <div className="text-xs text-muted-foreground">
                     Chuyên viên tư vấn BĐS Hà Nội
                   </div>
@@ -265,12 +240,9 @@ export default function PropertyDetail() {
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-primary" />
                   <span className="font-semibold text-lg text-primary">
-                    0996 668 800
+                    099 666 8800
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                  Liên hệ trực tiếp để được tư vấn, gửi thêm ảnh, video chi tiết và sắp xếp lịch xem nhà.
-                </p>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -293,65 +265,26 @@ export default function PropertyDetail() {
               </div>
             </section>
           </div>
-        </div>
 
-        {/* TIN ĐĂNG TƯƠNG TỰ */}
-        {similarProperties.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">Tin đăng tương tự</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {similarProperties.map((item) => (
-                <a
-                  key={item.id}
-                  href={`/nha-dat-ban/${item.id}`}
-                  className="block rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute bottom-2 left-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded-md line-clamp-1">
-                      {item.title}
-                    </div>
-                  </div>
-                  <div className="p-3 space-y-1">
-                    <div className="text-sm font-semibold text-primary">
-                      {item.price}
-                    </div>
-                    <div className="text-xs text-muted-foreground line-clamp-1">
-                      {item.address}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Diện tích: {item.area}
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
+        </div>
       </div>
 
-      {/* STICKY FOOTER MOBILE: GỌI / ZALO / LƯU TIN */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t shadow-lg md:hidden">
-        <div className="max-w-4xl mx-auto flex">
+      {/* FOOTER MOBILE */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50 md:hidden py-1">
+        <div className="flex">
           <a
             href="tel:0996668800"
-            className="flex-1 flex flex-col items-center justify-center py-2 text-xs border-r"
+            className="flex-1 flex flex-col items-center justify-center py-2 text-xs"
           >
             <Phone className="w-5 h-5 mb-1 text-primary" />
-            <span>Gọi ngay</span>
+            Gọi ngay
           </a>
           <a
             href="https://zalo.me/0996668800"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex flex-col items-center justify-center py-2 text-xs border-r"
+            className="flex-1 flex flex-col items-center justify-center py-2 text-xs"
           >
             <MessageCircle className="w-5 h-5 mb-1 text-primary" />
-            <span>Nhắn Zalo</span>
+            Nhắn Zalo
           </a>
           <button
             onClick={() => toggleFavorite(property.id)}
@@ -362,10 +295,32 @@ export default function PropertyDetail() {
                 isFavorited ? "text-red-500 fill-red-500" : "text-primary"
               }`}
             />
-            <span>{isFavorited ? "Đã lưu tin" : "Lưu tin"}</span>
+            {isFavorited ? "Đã lưu tin" : "Lưu tin"}
           </button>
         </div>
       </div>
     </>
+  );
+}
+
+/* COMPONENTS NHỎ */
+function Info({ icon, label, value }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="text-primary">{icon}</div>
+      <div>
+        <div className="font-medium text-sm">{value}</div>
+        <div className="text-xs text-muted-foreground">{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }) {
+  return (
+    <div className="flex justify-between">
+      <span>{label}</span>
+      <span className="font-medium text-foreground">{value}</span>
+    </div>
   );
 }
