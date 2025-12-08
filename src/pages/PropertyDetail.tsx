@@ -8,7 +8,6 @@ import {
   Phone,
   MessageCircle,
   Clock,
-  User,
 } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PropertyGallery } from "@/components/PropertyGallery";
@@ -38,7 +37,7 @@ export default function PropertyDetail() {
 
   return (
     <>
-      <div className="container py-4 lg:py-8 space-y-6 lg:space-y-8 pb-20 md:pb-10">
+      <div className="container py-4 lg:py-8 space-y-6 lg:space-y-8 pb-24 md:pb-10">
 
         {/* BREADCRUMB */}
         <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
@@ -73,9 +72,7 @@ export default function PropertyDetail() {
                   : "bg-background hover:bg-primary/10"
               }`}
             >
-              <Heart
-                className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`}
-              />
+              <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
             </button>
           </div>
 
@@ -94,9 +91,7 @@ export default function PropertyDetail() {
               {formatCurrency(property.price)}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {property.pricePerM2 && (
-                <span>~{property.pricePerM2} /m²</span>
-              )}
+              {property.pricePerM2 && <span>~{property.pricePerM2} /m²</span>}
               <span>Diện tích: {property.area}</span>
             </div>
           </div>
@@ -107,7 +102,7 @@ export default function PropertyDetail() {
 
           {/* CỘT TRÁI */}
           <div className="lg:col-span-2 space-y-6">
-            {/* GALLERY */}
+
             <PropertyGallery
               images={property.images || [property.image]}
               vipType={
@@ -124,6 +119,7 @@ export default function PropertyDetail() {
             {/* TỔNG QUAN */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Thông tin tổng quan</h2>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Diện tích" value={property.area} />
 
@@ -181,6 +177,7 @@ export default function PropertyDetail() {
             {similarProperties.length > 0 && (
               <section className="space-y-4">
                 <h2 className="text-lg font-semibold">Tin đăng tương tự</h2>
+
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {similarProperties.map((item) => (
                     <a
@@ -198,16 +195,11 @@ export default function PropertyDetail() {
                           {item.title}
                         </div>
                       </div>
+
                       <div className="p-3 space-y-1">
-                        <div className="text-sm font-semibold text-primary">
-                          {item.price}
-                        </div>
-                        <div className="text-xs text-muted-foreground line-clamp-1">
-                          {item.address}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Diện tích: {item.area}
-                        </div>
+                        <div className="text-sm font-semibold text-primary">{item.price}</div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">{item.address}</div>
+                        <div className="text-xs text-muted-foreground">Diện tích: {item.area}</div>
                       </div>
                     </a>
                   ))}
@@ -216,9 +208,10 @@ export default function PropertyDetail() {
             )}
           </div>
 
-          {/* CỘT PHẢI – LIÊN HỆ (GHIM) */}
+          {/* CỘT PHẢI – LIÊN HỆ GHIM */}
           <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-24 h-fit">
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-4 shadow-sm border">
+
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
                   <img
@@ -236,13 +229,11 @@ export default function PropertyDetail() {
                 </div>
               </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-primary" />
-                  <span className="font-semibold text-lg text-primary">
-                    099 666 8800
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-primary" />
+                <span className="font-semibold text-lg text-primary">
+                  099 666 8800
+                </span>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -253,6 +244,7 @@ export default function PropertyDetail() {
                   <Phone className="w-4 h-4" />
                   Gọi ngay
                 </a>
+
                 <a
                   href="https://zalo.me/0996668800"
                   target="_blank"
@@ -263,53 +255,50 @@ export default function PropertyDetail() {
                   Nhắn Zalo
                 </a>
               </div>
+
             </section>
           </div>
 
         </div>
       </div>
 
-      {/* FOOTER MOBILE – giống Batdongsan */}
-<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50 md:hidden p-2">
-  <div className="flex items-center gap-2">
+      {/* FOOTER MOBILE CHUẨN BATDONGSAN */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50 md:hidden p-2">
+        <div className="flex items-center gap-2">
 
-    {/* Avatar môi giới */}
-    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-      <img
-        src="/images/agent-trung.jpg"
-        alt="Võ Hữu Trung"
-        className="w-full h-full object-cover"
-      />
-    </div>
+          {/* Avatar môi giới */}
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+            <img
+              src="/images/agent-trung.jpg"
+              alt="Võ Hữu Trung"
+              className="w-full h-full object-cover"
+            />
+          </div>
 
-    {/* Nút Zalo */}
-    <a
-      href="https://zalo.me/0996668800"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2 bg-white border px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
-    >
-      <img
-        src="/images/zalo-icon.png"
-        alt="Zalo"
-        className="w-5 h-5"
-      />
-      <span className="font-medium text-sm">Zalo</span>
-    </a>
+          {/* Zalo */}
+          <a
+            href="https://zalo.me/0996668800"
+            className="flex items-center gap-2 bg-white border px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
+          >
+            <img src="/images/zalo-icon.png" className="w-5 h-5" />
+            <span className="font-medium text-sm">Zalo</span>
+          </a>
 
-    {/* Nút gọi điện */}
-    <a
-      href="tel:0996668800"
-      className="flex items-center gap-2 bg-primary text-white px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
-    >
-      <Phone className="w-4 h-4" />
-      <span className="font-semibold text-sm">099 666 8800</span>
-    </a>
-  </div>
-</div>
+          {/* Gọi điện */}
+          <a
+            href="tel:0996668800"
+            className="flex items-center gap-2 bg-primary text-white px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
+          >
+            <Phone className="w-4 h-4" />
+            <span className="font-semibold text-sm">099 666 8800</span>
+          </a>
+        </div>
+      </div>
+    </>
+  );
+}
 
-
-/* COMPONENTS NHỎ */
+/* COMPONENTS */
 function Info({ icon, label, value }) {
   return (
     <div className="flex items-center gap-2">
