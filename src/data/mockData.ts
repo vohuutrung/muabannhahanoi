@@ -106,7 +106,6 @@ export const mockProperties: Property[] = [
     floors: 4,
     image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80",
     postedDate: "6 ngày trước",
-    isVip: true,
   },
 ];
 

@@ -12,6 +12,7 @@ import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
 import Contact from "./pages/Contact";
 import Favorites from "./pages/Favorites";
+import PostPropertyPage from "./pages/PostPropertyPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/tin-tuc/:id" element={<NewsDetail />} />
               <Route path="/lien-he" element={<Contact />} />
               <Route path="/yeu-thich" element={<Favorites />} />
+              <Route path="/post-property" element={<PostPropertyPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -13,12 +13,16 @@ export interface Property {
   bedrooms?: number;
   bathrooms?: number;
   floors?: number;
-  image: string;
+  image?: string;
+  images?: string[];
   postedDate: string;
 
   // VIP TYPE (QUAN TRỌNG)
   vipType?: "KIMCUONG" | "VANG" | "BAC" | null;
   isHot?: boolean;
+  isVip?: boolean;
+  district?: string;
+  description?: string;
 }
 
 interface PropertyCardProps {

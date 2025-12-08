@@ -104,16 +104,8 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-6">
 
             <PropertyGallery
-              images={property.images || [property.image]}
-              vipType={
-                property.vipType === "KIMCUONG"
-                  ? "VIP KIM CƯƠNG"
-                  : property.vipType === "VANG"
-                  ? "VIP VÀNG"
-                  : property.vipType === "BAC"
-                  ? "VIP BẠC"
-                  : undefined
-              }
+              images={property.images.length > 0 ? property.images : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"]}
+              vipType={undefined}
             />
 
             {/* TỔNG QUAN */}
@@ -187,7 +179,7 @@ export default function PropertyDetail() {
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img
-                          src={item.image}
+                          src={item.images[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"}
                           alt={item.title}
                           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                         />
