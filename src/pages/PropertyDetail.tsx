@@ -269,39 +269,45 @@ export default function PropertyDetail() {
         </div>
       </div>
 
-      {/* FOOTER MOBILE */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50 md:hidden py-1">
-        <div className="flex">
-          <a
-            href="tel:0996668800"
-            className="flex-1 flex flex-col items-center justify-center py-2 text-xs"
-          >
-            <Phone className="w-5 h-5 mb-1 text-primary" />
-            Gọi ngay
-          </a>
-          <a
-            href="https://zalo.me/0996668800"
-            className="flex-1 flex flex-col items-center justify-center py-2 text-xs"
-          >
-            <MessageCircle className="w-5 h-5 mb-1 text-primary" />
-            Nhắn Zalo
-          </a>
-          <button
-            onClick={() => toggleFavorite(property.id)}
-            className="flex-1 flex flex-col items-center justify-center py-2 text-xs"
-          >
-            <Heart
-              className={`w-5 h-5 mb-1 ${
-                isFavorited ? "text-red-500 fill-red-500" : "text-primary"
-              }`}
-            />
-            {isFavorited ? "Đã lưu tin" : "Lưu tin"}
-          </button>
-        </div>
-      </div>
-    </>
-  );
-}
+      {/* FOOTER MOBILE – giống Batdongsan */}
+<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50 md:hidden p-2">
+  <div className="flex items-center gap-2">
+
+    {/* Avatar môi giới */}
+    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+      <img
+        src="/images/agent-trung.jpg"
+        alt="Võ Hữu Trung"
+        className="w-full h-full object-cover"
+      />
+    </div>
+
+    {/* Nút Zalo */}
+    <a
+      href="https://zalo.me/0996668800"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 bg-white border px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
+    >
+      <img
+        src="/images/zalo-icon.png"
+        alt="Zalo"
+        className="w-5 h-5"
+      />
+      <span className="font-medium text-sm">Zalo</span>
+    </a>
+
+    {/* Nút gọi điện */}
+    <a
+      href="tel:0996668800"
+      className="flex items-center gap-2 bg-primary text-white px-3 py-2 rounded-lg shadow-sm flex-1 justify-center"
+    >
+      <Phone className="w-4 h-4" />
+      <span className="font-semibold text-sm">099 666 8800</span>
+    </a>
+  </div>
+</div>
+
 
 /* COMPONENTS NHỎ */
 function Info({ icon, label, value }) {
