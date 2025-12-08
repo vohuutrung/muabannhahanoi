@@ -142,7 +142,7 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
 
 
         {/* lớp overlay */}
-        <div className="absolute inset-0 gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
+     
 
         {/* Trái tim */}
         <button
