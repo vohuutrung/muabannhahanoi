@@ -115,13 +115,31 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
         />
 
         {/* preview 4 ảnh nhỏ */}
-        <div className="absolute bottom-2 left-2 right-2 grid grid-cols-4 gap-1 z-20">
-          {previewImages.map((img, idx) => (
-            <div key={idx} className="rounded overflow-hidden border border-white/40 shadow">
-              <img src={img} className="w-full h-12 object-cover" />
-            </div>
-          ))}
-        </div>
+        {property.vipType === "KIMCUONG" && (
+  <div className="mt-2">
+    <div className="relative w-full h-[220px] mb-1">
+      <img
+        src={previewImages[0]}
+        className="w-full h-full object-cover rounded-lg"
+      />
+
+      <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
+        VIP KIM CƯƠNG
+      </span>
+    </div>
+
+    <div className="grid grid-cols-3 gap-1">
+      {previewImages.slice(1, 4).map((img, idx) => (
+        <img
+          key={idx}
+          src={img}
+          className="w-full h-[90px] object-cover rounded-md"
+        />
+      ))}
+    </div>
+  </div>
+)}
+
 
         {/* lớp overlay */}
         <div className="absolute inset-0 gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
