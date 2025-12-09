@@ -170,10 +170,30 @@ export default function PostPropertyPage() {
 
       const propertyId = propertyData.id;
 
-      // Upload images if any
+      // Upload images if any - with server-side validation
       const uploadedUrls: string[] = [];
 
       for (const file of selectedImages) {
+        // Server-side validation via Edge Function
+        const validationForm = new FormData();
+        validationForm.append("file", file);
+        validationForm.append("type", file.type);
+
+        const { data: session } = await supabase.auth.getSession();
+        const validationResponse = await supabase.functions.invoke("validate-image", {
+          body: validationForm,
+        });
+
+        if (validationResponse.error || !validationResponse.data?.valid) {
+          console.error("Validation failed:", validationResponse.error || validationResponse.data?.error);
+          toast({
+            title: "Lỗi",
+            description: `File "${file.name}" không hợp lệ: ${validationResponse.data?.error || "Lỗi xác thực"}`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
         const fileExt = file.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `properties/${propertyId}/${fileName}`;
