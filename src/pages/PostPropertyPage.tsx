@@ -7,8 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, Phone, Loader2 } from "lucide-react";
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 type VipType = "none" | "KIMCUONG" | "VANG" | "BAC";
 
@@ -31,6 +35,7 @@ interface FormData {
 export default function PostPropertyPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
@@ -67,8 +72,31 @@ export default function PostPropertyPage() {
     if (!files) return;
 
     const newFiles = Array.from(files).slice(0, 20 - selectedImages.length);
+    const validFiles: File[] = [];
     
     newFiles.forEach((file) => {
+      // Validate file type
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        toast({ 
+          title: "Lỗi", 
+          description: `File "${file.name}" không phải định dạng ảnh hợp lệ`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        toast({ 
+          title: "Lỗi", 
+          description: `File "${file.name}" vượt quá 5MB`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      validFiles.push(file);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreviewUrls((prev) => [...prev, reader.result as string]);
@@ -76,7 +104,7 @@ export default function PostPropertyPage() {
       reader.readAsDataURL(file);
     });
 
-    setSelectedImages((prev) => [...prev, ...newFiles]);
+    setSelectedImages((prev) => [...prev, ...validFiles]);
   };
 
   const removeImage = (index: number) => {
@@ -112,7 +140,7 @@ export default function PostPropertyPage() {
     setIsSubmitting(true);
 
     try {
-      // Insert property record
+      // Insert property record with user_id
       const { data: propertyData, error: insertError } = await supabase
         .from("properties")
         .insert({
@@ -130,6 +158,7 @@ export default function PostPropertyPage() {
           alley: formData.alley.trim() || null,
           vip_type: formData.vipType,
           images: [],
+          user_id: user?.id,
         })
         .select()
         .single();

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, Phone, Heart } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Phone, Heart, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
   { label: "Nhà đất bán", href: "/nha-dat-ban" },
@@ -14,7 +15,14 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { favorites } = useFavorites();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border">
@@ -75,7 +83,23 @@ export function Header() {
               <Phone className="w-4 h-4" />
               Hotline
             </Button>
-            <Button size="sm">Đăng tin</Button>
+            {user ? (
+              <>
+                <Link to="/post-property">
+                  <Button size="sm">Đăng tin</Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm">
+                  <User className="w-4 h-4 mr-1" />
+                  Đăng nhập
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Nút mở menu mobile */}
@@ -150,7 +174,23 @@ export function Header() {
                 <Phone className="w-4 h-4" />
                 Hotline
               </Button>
-              <Button className="flex-1">Đăng tin</Button>
+              {user ? (
+                <>
+                  <Link to="/post-property" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full">Đăng tin</Button>
+                  </Link>
+                  <Button variant="ghost" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">
+                    <User className="w-4 h-4 mr-1" />
+                    Đăng nhập
+                  </Button>
+                </Link>
+              )}
             </div>
           </nav>
         </div>
