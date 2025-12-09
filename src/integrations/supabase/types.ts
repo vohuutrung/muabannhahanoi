@@ -79,7 +79,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      properties_public: {
+        Row: {
+          alley: string | null
+          area: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          district: string | null
+          floors: number | null
+          id: string | null
+          images: string[] | null
+          price: number | null
+          street: string | null
+          title: string | null
+          updated_at: string | null
+          vip_type: string | null
+          ward: string | null
+        }
+        Insert: {
+          alley?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          district?: string | null
+          floors?: number | null
+          id?: string | null
+          images?: string[] | null
+          price?: number | null
+          street?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vip_type?: string | null
+          ward?: string | null
+        }
+        Update: {
+          alley?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          district?: string | null
+          floors?: number | null
+          id?: string | null
+          images?: string[] | null
+          price?: number | null
+          street?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vip_type?: string | null
+          ward?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
