@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Home } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyCard, Property } from "@/components/PropertyCard";
 import { NewsCard } from "@/components/NewsCard";
 import { AreaCard } from "@/components/AreaCard";
 import { Button } from "@/components/ui/button";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
-import { mockProperties, mockNews, mockAreas } from "@/data/mockData";
+import { mockNews, mockAreas } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
+
 const QUICK_DISTRICTS = [
   { label: "Thanh Xuân", value: "thanh-xuan" },
   { label: "Đống Đa", value: "dong-da" },
@@ -20,6 +22,73 @@ const QUICK_DISTRICTS = [
 export default function Index() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [posts, setPosts] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(8);
+
+      if (error) {
+        console.error("Error fetching posts:", error);
+        return;
+      }
+
+      // Map posts to Property type for PropertyCard compatibility
+      const mappedPosts: Property[] = (data || []).map((post) => ({
+        id: post.id,
+        title: post.title,
+        price: formatPrice(post.price),
+        pricePerM2: post.area > 0 ? `${formatPrice(post.price / post.area)}/m²` : undefined,
+        area: `${post.area} m²`,
+        address: [post.street, post.ward, post.district, post.city].filter(Boolean).join(", "),
+        bedrooms: post.bedrooms || undefined,
+        bathrooms: post.bathrooms || undefined,
+        floors: post.floors || undefined,
+        image: post.images?.[0] || "/placeholder.svg",
+        images: post.images || [],
+        postedDate: formatDate(post.created_at),
+        vipType: post.listing_type === "kimcuong" ? "KIMCUONG" : 
+                 post.listing_type === "vang" ? "VANG" : 
+                 post.listing_type === "bac" ? "BAC" : null,
+        district: post.district,
+        description: post.description || undefined,
+      }));
+
+      setPosts(mappedPosts);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatPrice = (price: number): string => {
+    if (price >= 1000) {
+      return `${(price / 1000).toFixed(1).replace(/\.0$/, "")} tỷ`;
+    }
+    return `${price} triệu`;
+  };
+
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Hôm nay";
+    if (diffDays === 1) return "Hôm qua";
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    return date.toLocaleDateString("vi-VN");
+  };
 
   const handleDistrictClick = (district: string) => {
     navigate(`/nha-dat-ban?district=${district}`);
@@ -139,9 +208,19 @@ export default function Index() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {mockProperties.slice(0, 8).map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
+            {loading ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                Đang tải...
+              </div>
+            ) : posts.length > 0 ? (
+              posts.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                Chưa có tin đăng nào
+              </div>
+            )}
           </div>
         </div>
       </section>
