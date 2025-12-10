@@ -31,6 +31,17 @@ interface FormData {
   alley: string;
   vipType: VipType;
 }
+// === SLUGIFY ADD HERE ===
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+// === END SLUGIFY ===
+
 
 export default function PostPropertyPage() {
   const navigate = useNavigate();
@@ -58,7 +69,7 @@ export default function PostPropertyPage() {
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  ) => {  
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -140,6 +151,8 @@ export default function PostPropertyPage() {
     setIsSubmitting(true);
 
     try {
+      const slug = slugify(formData.title.trim());
+
       // Insert post record with user_id
       const { data: postData, error: insertError } = await supabase
         .from("posts")
@@ -159,6 +172,8 @@ export default function PostPropertyPage() {
           listing_type: formData.vipType === "none" ? "thuong" : formData.vipType.toLowerCase(),
           images: [],
           user_id: user?.id,
+          slug: slug,
+
         })
         .select()
         .single();
