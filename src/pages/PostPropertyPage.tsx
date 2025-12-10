@@ -249,6 +249,7 @@ export default function PostPropertyPage() {
       navigate("/");
     } catch (error) {
       console.error("Submit error:", error);
+      console.error("Supabase insert error:", error);
       toast({
         title: "Lỗi",
         description: "Có lỗi xảy ra khi đăng tin. Vui lòng thử lại.",
