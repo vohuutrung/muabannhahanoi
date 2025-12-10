@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Heart,
   Bath,
@@ -13,15 +14,107 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { formatCurrency } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
-import { mockProperties } from "@/data/properties";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Post {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  area: number;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  floors: number | null;
+  city: string | null;
+  district: string;
+  ward: string | null;
+  street: string | null;
+  alley: string | null;
+  images: string[] | null;
+  listing_type: string | null;
+  created_at: string;
+}
+
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export default function PropertyDetail() {
-  const { id } = useParams();
+  const { id: slugParam } = useParams();
   const { favorites, toggleFavorite } = useFavorites();
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [similarPosts, setSimilarPosts] = useState<Post[]>([]);
 
-  const property = mockProperties.find((p) => p.id === id);
+  useEffect(() => {
+    fetchPost();
+  }, [slugParam]);
 
-  if (!property) {
+  const fetchPost = async () => {
+    try {
+      // Fetch all posts and find by slug match
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching posts:", error);
+        setLoading(false);
+        return;
+      }
+
+      // Find the post whose title matches the slug
+      const foundPost = data?.find((p) => slugify(p.title) === slugParam);
+      
+      if (foundPost) {
+        setPost(foundPost);
+        // Get similar posts (same district, different id)
+        const similar = data
+          ?.filter((p) => p.id !== foundPost.id && p.district === foundPost.district)
+          .slice(0, 4) || [];
+        setSimilarPosts(similar);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatPrice = (price: number): string => {
+    if (price >= 1000) {
+      return `${(price / 1000).toFixed(1).replace(/\.0$/, "")} tỷ`;
+    }
+    return `${price} triệu`;
+  };
+
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Hôm nay";
+    if (diffDays === 1) return "Hôm qua";
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  if (loading) {
+    return (
+      <div className="container py-10 text-center">
+        <p className="text-muted-foreground">Đang tải...</p>
+      </div>
+    );
+  }
+
+  if (!post) {
     return (
       <div className="container py-10 text-center">
         <h2 className="text-xl font-bold">Không tìm thấy tin</h2>
@@ -29,11 +122,9 @@ export default function PropertyDetail() {
     );
   }
 
-  const isFavorited = favorites.includes(property.id);
-
-  const similarProperties = mockProperties
-    .filter((p) => p.id !== property.id)
-    .slice(0, 4);
+  const isFavorited = favorites.includes(post.id);
+  const address = [post.street, post.ward, post.district, post.city].filter(Boolean).join(", ");
+  const images = post.images?.length ? post.images : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"];
 
   return (
     <>
@@ -45,8 +136,8 @@ export default function PropertyDetail() {
             items={[
               { label: "Trang chủ", href: "/" },
               { label: "Nhà đất bán", href: "/nha-dat-ban" },
-              { label: property.district || "", href: "#" },
-              { label: property.title, href: "#" },
+              { label: post.district || "", href: "#" },
+              { label: post.title, href: "#" },
             ]}
           />
         </div>
@@ -56,16 +147,16 @@ export default function PropertyDetail() {
           <div className="flex justify-between items-start gap-3">
             <div className="flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold leading-snug">
-                {property.title}
+                {post.title}
               </h1>
               <p className="text-sm text-muted-foreground leading-tight mt-1 flex items-center gap-1">
                 <MapPin className="w-4 h-4 text-primary" />
-                <span>{property.address}</span>
+                <span>{address}</span>
               </p>
             </div>
 
             <button
-              onClick={() => toggleFavorite(property.id)}
+              onClick={() => toggleFavorite(post.id)}
               className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all shrink-0 ${
                 isFavorited
                   ? "bg-primary text-primary-foreground"
@@ -79,7 +170,7 @@ export default function PropertyDetail() {
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              <span>{property.postedDate || "Mới đăng"}</span>
+              <span>{formatDate(post.created_at)}</span>
             </div>
           </div>
         </div>
@@ -88,11 +179,11 @@ export default function PropertyDetail() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <div className="text-2xl sm:text-3xl font-bold text-primary">
-              {formatCurrency(property.price)}
+              {formatPrice(post.price)}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {property.pricePerM2 && <span>~{property.pricePerM2} /m²</span>}
-              <span>Diện tích: {property.area}</span>
+              {post.area > 0 && <span>~{formatPrice(post.price / post.area)}/m²</span>}
+              <span>Diện tích: {post.area} m²</span>
             </div>
           </div>
         </div>
@@ -104,8 +195,10 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-6">
 
             <PropertyGallery
-              images={property.images.length > 0 ? property.images : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"]}
-              vipType={undefined}
+              images={images}
+              vipType={post.listing_type === "kimcuong" ? "VIP KIM CƯƠNG" : 
+                       post.listing_type === "vang" ? "VIP VÀNG" :
+                       post.listing_type === "bac" ? "VIP BẠC" : undefined}
             />
 
             {/* TỔNG QUAN */}
@@ -113,18 +206,18 @@ export default function PropertyDetail() {
               <h2 className="text-lg font-semibold">Thông tin tổng quan</h2>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Diện tích" value={property.area} />
+                <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Diện tích" value={`${post.area} m²`} />
 
-                {property.bedrooms && (
-                  <Info icon={<BedDouble className="w-4 h-4 text-primary" />} label="Phòng ngủ" value={property.bedrooms} />
+                {post.bedrooms && (
+                  <Info icon={<BedDouble className="w-4 h-4 text-primary" />} label="Phòng ngủ" value={post.bedrooms} />
                 )}
 
-                {property.bathrooms && (
-                  <Info icon={<Bath className="w-4 h-4 text-primary" />} label="Phòng tắm" value={property.bathrooms} />
+                {post.bathrooms && (
+                  <Info icon={<Bath className="w-4 h-4 text-primary" />} label="Phòng tắm" value={post.bathrooms} />
                 )}
 
-                {property.floors && (
-                  <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Số tầng" value={property.floors} />
+                {post.floors && (
+                  <Info icon={<Layers className="w-4 h-4 text-primary" />} label="Số tầng" value={post.floors} />
                 )}
               </div>
             </section>
@@ -133,7 +226,7 @@ export default function PropertyDetail() {
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Mô tả chi tiết</h2>
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {property.description}
+                {post.description || "Không có mô tả"}
               </p>
             </section>
 
@@ -142,22 +235,22 @@ export default function PropertyDetail() {
               <h2 className="text-lg font-semibold">Đặc điểm bất động sản</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
                 <DetailRow label="Loại hình" value="Nhà riêng / Nhà phố" />
-                <DetailRow label="Số tầng" value={property.floors || "—"} />
-                <DetailRow label="Số phòng ngủ" value={property.bedrooms || "—"} />
-                <DetailRow label="Số phòng tắm" value={property.bathrooms || "—"} />
+                <DetailRow label="Số tầng" value={post.floors || "—"} />
+                <DetailRow label="Số phòng ngủ" value={post.bedrooms || "—"} />
+                <DetailRow label="Số phòng tắm" value={post.bathrooms || "—"} />
               </div>
             </section>
 
             {/* MAP */}
             <section className="bg-card rounded-lg p-4 sm:p-5 space-y-3">
               <h2 className="text-lg font-semibold">Vị trí trên bản đồ</h2>
-              <p className="text-sm text-muted-foreground mb-2">{property.address}</p>
+              <p className="text-sm text-muted-foreground mb-2">{address}</p>
 
               <div className="w-full overflow-hidden rounded-lg border">
                 <iframe
                   title="Bản đồ vị trí"
                   src={`https://www.google.com/maps?q=${encodeURIComponent(
-                    property.address
+                    address
                   )}&output=embed`}
                   className="w-full h-64 border-0"
                   loading="lazy"
@@ -166,20 +259,20 @@ export default function PropertyDetail() {
             </section>
 
             {/* TIN TƯƠNG TỰ */}
-            {similarProperties.length > 0 && (
+            {similarPosts.length > 0 && (
               <section className="space-y-4">
                 <h2 className="text-lg font-semibold">Tin đăng tương tự</h2>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {similarProperties.map((item) => (
+                  {similarPosts.map((item) => (
                     <a
                       key={item.id}
-                      href={`/nha-dat-ban/${item.id}`}
+                      href={`/nha-dat-ban/${slugify(item.title)}`}
                       className="block rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img
-                          src={item.images[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"}
+                          src={item.images?.[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"}
                           alt={item.title}
                           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                         />
@@ -189,9 +282,11 @@ export default function PropertyDetail() {
                       </div>
 
                       <div className="p-3 space-y-1">
-                        <div className="text-sm font-semibold text-primary">{item.price}</div>
-                        <div className="text-xs text-muted-foreground line-clamp-1">{item.address}</div>
-                        <div className="text-xs text-muted-foreground">Diện tích: {item.area}</div>
+                        <div className="text-sm font-semibold text-primary">{formatPrice(item.price)}</div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {[item.street, item.ward, item.district].filter(Boolean).join(", ")}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Diện tích: {item.area} m²</div>
                       </div>
                     </a>
                   ))}
