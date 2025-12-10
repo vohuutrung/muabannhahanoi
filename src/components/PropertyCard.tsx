@@ -39,6 +39,8 @@ interface PropertyCardProps {
   variant?: "vertical" | "horizontal";
 }
 
+const PLACEHOLDER_IMAGE = "/placeholder.svg";
+
 export function PropertyCard({ property, variant = "vertical" }: PropertyCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorited = isFavorite(property.id);
@@ -49,13 +51,22 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
     toggleFavorite(property.id);
   };
 
-  // Tạo preview 4 ảnh từ 1 ảnh chính
+  // Build unique image array: use images array if available, fallback to single image
+  const allImages = property.images?.length 
+    ? [...new Set(property.images)] // Remove duplicates
+    : property.image 
+      ? [property.image] 
+      : [];
+  
+  // Get up to 4 unique images, fill remaining slots with placeholder
   const previewImages = [
-    property.image,
-    `${property.image}?1`,
-    `${property.image}?2`,
-    `${property.image}?3`,
+    allImages[0] || PLACEHOLDER_IMAGE,
+    allImages[1] || PLACEHOLDER_IMAGE,
+    allImages[2] || PLACEHOLDER_IMAGE,
+    allImages[3] || PLACEHOLDER_IMAGE,
   ];
+  
+  const mainImage = previewImages[0];
 
   // ---------------------------
   // HORIZONTAL — KHÔNG ĐỤNG VÀO
@@ -66,7 +77,7 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
     return (
       <Link to={`/nha-dat-ban/${slug}`} className="property-card flex gap-4 p-3">
         <div className="relative w-32 h-24 sm:w-40 sm:h-28 shrink-0 rounded-lg overflow-hidden">
-          <img src={property.image} alt={property.title} className="w-full h-full object-cover" />
+          <img src={mainImage} alt={property.title} className="w-full h-full object-cover" />
           {property.isHot && <span className="badge-hot absolute top-2 left-2">HOT</span>}
         </div>
 
@@ -99,7 +110,8 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
           {/* ảnh to */}
           <div className="relative w-full h-[220px] mb-2">
             <img
-              src={previewImages[0]}
+              src={mainImage}
+              alt={property.title}
               className="w-full h-full object-cover rounded-lg"
             />
 
@@ -115,16 +127,22 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
             </button>
           </div>
 
-          {/* 3 ảnh nhỏ */}
-          <div className="grid grid-cols-3 gap-1">
-            {previewImages.slice(1, 4).map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                className="w-full h-[90px] object-cover rounded-md"
-              />
-            ))}
-          </div>
+          {/* 3 ảnh nhỏ - only show if we have more than 1 image */}
+          {allImages.length > 1 && (
+            <div className="grid grid-cols-3 gap-1">
+              {previewImages.slice(1, 4).map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`${property.title} ${idx + 2}`}
+                  className={cn(
+                    "w-full h-[90px] object-cover rounded-md",
+                    img === PLACEHOLDER_IMAGE && "opacity-50"
+                  )}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -138,7 +156,8 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
     {/* Ảnh to phía trên */}
     <div className="relative w-full h-[220px] mb-2">
       <img
-        src={previewImages[0]}
+        src={mainImage}
+        alt={property.title}
         className="w-full h-full object-cover rounded-lg"
       />
 
@@ -159,17 +178,27 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
       </button>
     </div>
 
-    {/* 2 ảnh nhỏ phía dưới */}
-    <div className="grid grid-cols-2 gap-2">
-      <img
-        src={previewImages[1]}
-        className="w-full h-[100px] object-cover rounded-lg"
-      />
-      <img
-        src={previewImages[2]}
-        className="w-full h-[100px] object-cover rounded-lg"
-      />
-    </div>
+    {/* 2 ảnh nhỏ phía dưới - only show if we have more than 1 image */}
+    {allImages.length > 1 && (
+      <div className="grid grid-cols-2 gap-2">
+        <img
+          src={previewImages[1]}
+          alt={`${property.title} 2`}
+          className={cn(
+            "w-full h-[100px] object-cover rounded-lg",
+            previewImages[1] === PLACEHOLDER_IMAGE && "opacity-50"
+          )}
+        />
+        <img
+          src={previewImages[2]}
+          alt={`${property.title} 3`}
+          className={cn(
+            "w-full h-[100px] object-cover rounded-lg",
+            previewImages[2] === PLACEHOLDER_IMAGE && "opacity-50"
+          )}
+        />
+      </div>
+    )}
 
   </div>
 )}
@@ -182,7 +211,8 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
       {!vip && (
         <div className="relative aspect-[4/3] overflow-hidden">
           <img
-            src={property.image}
+            src={mainImage}
+            alt={property.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
