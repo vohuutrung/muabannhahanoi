@@ -31,7 +31,7 @@ interface FormData {
   alley: string;
   vipType: VipType;
 }
-// === SLUGIFY ADD HERE ===
+
 function slugify(str: string) {
   return str
     .toLowerCase()
@@ -40,8 +40,6 @@ function slugify(str: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
-// === END SLUGIFY ===
-
 
 export default function PostPropertyPage() {
   const navigate = useNavigate();
@@ -86,7 +84,6 @@ export default function PostPropertyPage() {
     const validFiles: File[] = [];
     
     newFiles.forEach((file) => {
-      // Validate file type
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         toast({ 
           title: "Lỗi", 
@@ -96,7 +93,6 @@ export default function PostPropertyPage() {
         return;
       }
       
-      // Validate file size
       if (file.size > MAX_FILE_SIZE) {
         toast({ 
           title: "Lỗi", 
@@ -153,9 +149,9 @@ export default function PostPropertyPage() {
     try {
       const slug = slugify(formData.title.trim());
 
-      // Insert post record with user_id
-      const { data: postData, error: insertError } = await supabase
-        .from("posts")
+      // INSERT TO PROPERTIES (NOT POSTS)
+      const { data: property, error: insertError } = await supabase
+        .from("properties")
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim() || null,
@@ -170,10 +166,8 @@ export default function PostPropertyPage() {
           street: formData.street.trim() || null,
           alley: formData.alley.trim() || null,
           listing_type: formData.vipType === "none" ? "thuong" : formData.vipType.toLowerCase(),
-          images: [],
-          user_id: user?.id,
           slug: slug,
-
+          user_id: user?.id,
         })
         .select()
         .single();
@@ -183,35 +177,17 @@ export default function PostPropertyPage() {
         throw new Error("Không thể tạo tin đăng");
       }
 
-      const postId = postData.id;
+      const propertyId = property.id;
 
-      // Upload images if any - with server-side validation
+      // UPLOAD IMAGES
       const uploadedUrls: string[] = [];
 
       for (const file of selectedImages) {
-        // Server-side validation via Edge Function
-        const validationForm = new FormData();
-        validationForm.append("file", file);
-        validationForm.append("type", file.type);
-
-        const { data: session } = await supabase.auth.getSession();
-        const validationResponse = await supabase.functions.invoke("validate-image", {
-          body: validationForm,
-        });
-
-        if (validationResponse.error || !validationResponse.data?.valid) {
-          console.error("Validation failed:", validationResponse.error || validationResponse.data?.error);
-          toast({
-            title: "Lỗi",
-            description: `File "${file.name}" không hợp lệ: ${validationResponse.data?.error || "Lỗi xác thực"}`,
-            variant: "destructive",
-          });
-          continue;
-        }
-
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `posts/${postId}/${fileName}`;
+        const fileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(7)}.${fileExt}`;
+        const filePath = `properties/${propertyId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("property-images")
@@ -229,16 +205,12 @@ export default function PostPropertyPage() {
         uploadedUrls.push(urlData.publicUrl);
       }
 
-      // Update post with image URLs
-      if (uploadedUrls.length > 0) {
-        const { error: updateError } = await supabase
-          .from("posts")
-          .update({ images: uploadedUrls })
-          .eq("id", postId);
-
-        if (updateError) {
-          console.error("Update error:", updateError);
-        }
+      // SAVE URLS TO property_images TABLE
+      for (const url of uploadedUrls) {
+        await supabase.from("property_images").insert({
+          property_id: propertyId,
+          image_url: url,
+        });
       }
 
       toast({
@@ -246,10 +218,10 @@ export default function PostPropertyPage() {
         description: "Đăng tin thành công!",
       });
 
-      navigate("/");
+      navigate(`/nha-dat-ban/${slug}`);
+      
     } catch (error) {
       console.error("Submit error:", error);
-      console.error("Supabase insert error:", error);
       toast({
         title: "Lỗi",
         description: "Có lỗi xảy ra khi đăng tin. Vui lòng thử lại.",
@@ -267,6 +239,7 @@ export default function PostPropertyPage() {
           <h1 className="text-2xl lg:text-3xl font-bold mb-6">Đăng tin bất động sản</h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
+
             {/* Basic Info */}
             <section className="bg-card rounded-xl p-6 shadow-sm border">
               <h2 className="text-lg font-semibold mb-4 text-primary">Thông tin cơ bản</h2>
