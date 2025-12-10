@@ -147,11 +147,9 @@ export default function PostPropertyPage() {
     setIsSubmitting(true);
 
     try {
-      const slug = slugify(formData.title.trim());
-
-      // INSERT TO PROPERTIES (NOT POSTS)
-      const { data: property, error: insertError } = await supabase
-        .from("properties")
+      // Insert to posts table
+      const { data: postData, error: insertError } = await supabase
+        .from("posts")
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim() || null,
@@ -166,28 +164,26 @@ export default function PostPropertyPage() {
           street: formData.street.trim() || null,
           alley: formData.alley.trim() || null,
           listing_type: formData.vipType === "none" ? "thuong" : formData.vipType.toLowerCase(),
-          slug: slug,
+          images: [],
           user_id: user?.id,
         })
         .select()
         .single();
 
-      if (insertError) {
+      if (insertError || !postData) {
         console.error("Insert error:", insertError);
         throw new Error("Không thể tạo tin đăng");
       }
 
-      const propertyId = property.id;
+      const postId = postData.id;
 
-      // UPLOAD IMAGES
+      // Upload images
       const uploadedUrls: string[] = [];
 
       for (const file of selectedImages) {
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random()
-          .toString(36)
-          .substring(7)}.${fileExt}`;
-        const filePath = `properties/${propertyId}/${fileName}`;
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `posts/${postId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("property-images")
@@ -205,12 +201,12 @@ export default function PostPropertyPage() {
         uploadedUrls.push(urlData.publicUrl);
       }
 
-      // SAVE URLS TO property_images TABLE
-      for (const url of uploadedUrls) {
-        await supabase.from("property_images").insert({
-          property_id: propertyId,
-          image_url: url,
-        });
+      // Update post with image URLs
+      if (uploadedUrls.length > 0) {
+        await supabase
+          .from("posts")
+          .update({ images: uploadedUrls })
+          .eq("id", postId);
       }
 
       toast({
@@ -218,8 +214,7 @@ export default function PostPropertyPage() {
         description: "Đăng tin thành công!",
       });
 
-      navigate(`/nha-dat-ban/${slug}`);
-      
+      navigate("/");
     } catch (error) {
       console.error("Submit error:", error);
       toast({

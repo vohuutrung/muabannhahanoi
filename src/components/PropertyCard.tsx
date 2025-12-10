@@ -25,6 +25,15 @@ export interface Property {
   description?: string;
 }
 
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 interface PropertyCardProps {
   property: Property;
   variant?: "vertical" | "horizontal";
@@ -51,9 +60,11 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
   // ---------------------------
   // HORIZONTAL — KHÔNG ĐỤNG VÀO
   // ---------------------------
+  const slug = slugify(property.title);
+
   if (variant === "horizontal") {
     return (
-      <Link to={`/nha-dat-ban/${property.slug}`} className="property-card flex gap-4 p-3">
+      <Link to={`/nha-dat-ban/${slug}`} className="property-card flex gap-4 p-3">
         <div className="relative w-32 h-24 sm:w-40 sm:h-28 shrink-0 rounded-lg overflow-hidden">
           <img src={property.image} alt={property.title} className="w-full h-full object-cover" />
           {property.isHot && <span className="badge-hot absolute top-2 left-2">HOT</span>}
@@ -78,7 +89,7 @@ export function PropertyCard({ property, variant = "vertical" }: PropertyCardPro
   const vip = property.vipType;
 
   return (
-    <Link to={`/nha-dat-ban/${property.slug}`} className="property-card group">
+    <Link to={`/nha-dat-ban/${slug}`} className="property-card group">
       
       {/* ---------------------- */}
       {/* VIP KIM CƯƠNG — 1 TO + 3 NHỎ */}
