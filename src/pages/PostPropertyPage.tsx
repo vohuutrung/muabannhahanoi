@@ -140,9 +140,9 @@ export default function PostPropertyPage() {
     setIsSubmitting(true);
 
     try {
-      // Insert property record with user_id
-      const { data: propertyData, error: insertError } = await supabase
-        .from("properties")
+      // Insert post record with user_id
+      const { data: postData, error: insertError } = await supabase
+        .from("posts")
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim() || null,
@@ -156,7 +156,7 @@ export default function PostPropertyPage() {
           ward: formData.ward.trim() || null,
           street: formData.street.trim() || null,
           alley: formData.alley.trim() || null,
-          vip_type: formData.vipType,
+          listing_type: formData.vipType === "none" ? "thuong" : formData.vipType.toLowerCase(),
           images: [],
           user_id: user?.id,
         })
@@ -168,7 +168,7 @@ export default function PostPropertyPage() {
         throw new Error("Không thể tạo tin đăng");
       }
 
-      const propertyId = propertyData.id;
+      const postId = postData.id;
 
       // Upload images if any - with server-side validation
       const uploadedUrls: string[] = [];
@@ -196,7 +196,7 @@ export default function PostPropertyPage() {
 
         const fileExt = file.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `properties/${propertyId}/${fileName}`;
+        const filePath = `posts/${postId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("property-images")
@@ -214,12 +214,12 @@ export default function PostPropertyPage() {
         uploadedUrls.push(urlData.publicUrl);
       }
 
-      // Update property with image URLs
+      // Update post with image URLs
       if (uploadedUrls.length > 0) {
         const { error: updateError } = await supabase
-          .from("properties")
+          .from("posts")
           .update({ images: uploadedUrls })
-          .eq("id", propertyId);
+          .eq("id", postId);
 
         if (updateError) {
           console.error("Update error:", updateError);
@@ -231,7 +231,7 @@ export default function PostPropertyPage() {
         description: "Đăng tin thành công!",
       });
 
-      navigate(`/nha-dat-ban/${propertyId}`);
+      navigate("/");
     } catch (error) {
       console.error("Submit error:", error);
       toast({
