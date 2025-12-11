@@ -32,7 +32,9 @@ interface Property {
   alley: string | null;
   images: string[] | null;
   vip_type: string | null;
+  listing_type?: string | null; // For posts table
   created_at: string;
+  source?: 'properties' | 'posts'; // Track which table it came from
 }
 
 function slugify(str: string) {
@@ -57,30 +59,50 @@ export default function PropertyDetail() {
 
   const fetchProperty = async () => {
     try {
-      // Fetch all properties from public view (no RLS restrictions)
-      const { data, error } = await supabase
-        .from("properties_public")
-        .select("*");
+      // Fetch from both tables to find the property
+      const [propertiesResult, postsResult] = await Promise.all([
+        supabase.from("properties_public").select("*"),
+        supabase.from("posts_public").select("*")
+      ]);
 
-      if (error) {
-        console.error("Error fetching properties:", error);
-        setLoading(false);
-        return;
+      if (propertiesResult.error) {
+        console.error("Error fetching properties:", propertiesResult.error);
+      }
+      if (postsResult.error) {
+        console.error("Error fetching posts:", postsResult.error);
       }
 
-      if (!data || data.length === 0) {
+      // Combine data from both tables
+      const propertiesData = (propertiesResult.data || []).map(p => ({
+        ...p,
+        source: 'properties' as const,
+        vip_type: p.vip_type
+      }));
+      
+      const postsData = (postsResult.data || []).map(p => ({
+        ...p,
+        source: 'posts' as const,
+        // Map listing_type to vip_type for consistency
+        vip_type: p.listing_type === "kimcuong" ? "KIMCUONG" : 
+                  p.listing_type === "vang" ? "VANG" : 
+                  p.listing_type === "bac" ? "BAC" : null
+      }));
+
+      const allData = [...propertiesData, ...postsData];
+
+      if (allData.length === 0) {
         console.log("No properties found in database");
         setLoading(false);
         return;
       }
 
       // Find the property whose title matches the slug
-      const foundProperty = data.find((p) => p.title && slugify(p.title) === slugParam);
+      const foundProperty = allData.find((p) => p.title && slugify(p.title) === slugParam);
       
       if (foundProperty) {
         setProperty(foundProperty as Property);
         // Get similar properties (same district, different id)
-        const similar = data
+        const similar = allData
           .filter((p) => p.id !== foundProperty.id && p.district === foundProperty.district)
           .slice(0, 4);
         setSimilarProperties(similar as Property[]);
