@@ -32,6 +32,7 @@ interface Property {
   alley: string | null;
   images: string[] | null;
   vip_type: string | null;
+  slug: string;
   created_at: string;
 }
 
@@ -57,28 +58,31 @@ export default function PropertyDetail() {
 
   const fetchProperty = async () => {
     try {
-      // Fetch all properties from public view and find by slug match
-      const { data, error } = await supabase
-        .from("properties_public")
+      // Fetch property by slug
+      const { data: property, error } = await supabase
+        .from("properties")
         .select("*")
-        .order("created_at", { ascending: false });
+        .eq("slug", slugParam)
+        .maybeSingle();
 
       if (error) {
-        console.error("Error fetching properties:", error);
+        console.error("Error fetching property:", error);
         setLoading(false);
         return;
       }
 
-      // Find the property whose title matches the slug
-      const foundProperty = data?.find((p) => p.title && slugify(p.title) === slugParam);
-      
-      if (foundProperty) {
-        setProperty(foundProperty as Property);
+      if (property) {
+        setProperty(property as Property);
+        
         // Get similar properties (same district, different id)
-        const similar = data
-          ?.filter((p) => p.id !== foundProperty.id && p.district === foundProperty.district)
-          .slice(0, 4) || [];
-        setSimilarProperties(similar as Property[]);
+        const { data: similarData } = await supabase
+          .from("properties")
+          .select("*")
+          .eq("district", property.district)
+          .neq("id", property.id)
+          .limit(4);
+        
+        setSimilarProperties((similarData || []) as Property[]);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -271,7 +275,7 @@ export default function PropertyDetail() {
                   {similarProperties.map((item) => (
                     <Link
                       key={item.id}
-                      to={`/nha-dat-ban/${slugify(item.title || "")}`}
+                      to={`/nha-dat-ban/${item.slug}`}
                       className="block rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">
