@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -7,32 +7,40 @@ import { FilterTabs } from "@/components/FilterTabs";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { FilterModal } from "@/components/FilterModal";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/data/properties";
-import { usePropertyFilter } from "@/hooks/usePropertyFilter";
 import { SORT_OPTIONS, FilterState } from "@/types/property";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Listing() {
   const [searchParams] = useSearchParams();
   const initialDistrict = searchParams.get("district") || undefined;
 
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const {
-    filters,
-    filteredProperties,
-    updateFilter,
-    toggleArrayFilter,
-    resetFilters,
-    activeFiltersCount,
-    getActiveFilterLabels,
-    clearFilter,
-  } = usePropertyFilter(mockProperties, initialDistrict);
+  // FETCH dữ liệu REAL từ SUPABASE
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase.from("properties").select("*");
 
-  const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
+      if (!error && data) {
+        setProperties(data);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div className="p-10 text-center">Đang tải dữ liệu...</div>;
+  }
+
+  // filter sẽ chạy trên properties (dữ liệu thật)
+  // TODO: áp dụng bộ lọc nếu cần
+
 
   return (
     <Layout>
