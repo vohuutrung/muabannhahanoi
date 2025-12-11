@@ -120,14 +120,7 @@ export default function Index() {
       <section className="gradient-hero py-12 md:py-20">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4 animate-fade-in">
-              Tìm kiếm nhà đất
-              <br />
-              <span className="text-primary-foreground/90">dễ dàng & nhanh chóng</span>
-            </h1>
-            <p className="text-primary-foreground/80 text-base md:text-lg mb-8 animate-fade-in">
-              Hơn 50,000 tin đăng mới mỗi tháng. Kết nối trực tiếp với chủ nhà.
-            </p>
+            
 
             {/* Search Box */}
             <div className="bg-card rounded-xl p-4 md:p-6 shadow-lg animate-slide-up">
@@ -176,23 +169,7 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              {[
-                { label: "Tin đăng", value: "50K+" },
-                { label: "Người dùng", value: "1M+" },
-                { label: "Dự án", value: "500+" },
-                { label: "Khu vực", value: "63" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p className="text-2xl md:text-3xl font-bold text-primary-foreground">{stat.value}</p>
-                  <p className="text-primary-foreground/70 text-sm">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+            
 
       {/* Latest Listings Section */}
       <section className="section-padding bg-background">
