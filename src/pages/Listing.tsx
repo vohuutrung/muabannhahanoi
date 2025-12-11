@@ -1,107 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
-import Layout from "@/components/layout/Layout";
+import { Layout } from "@/components/layout/Layout";
 import { PropertyCardNew } from "@/components/PropertyCardNew";
 import { FilterTabs } from "@/components/FilterTabs";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { FilterModal } from "@/components/FilterModal";
 import { Button } from "@/components/ui/button";
-import { SORT_OPTIONS } from "@/types/property";
+import { mockProperties } from "@/data/properties";
+import { usePropertyFilter } from "@/hooks/usePropertyFilter";
+import { SORT_OPTIONS, FilterState } from "@/types/property";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Listing() {
   const [searchParams] = useSearchParams();
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const filteredProperties = properties;
+  const initialDistrict = searchParams.get("district") || undefined;
 
-
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .order("created_at", { ascending: false });
+  const {
+    filters,
+    filteredProperties,
+    updateFilter,
+    toggleArrayFilter,
+    resetFilters,
+    activeFiltersCount,
+    getActiveFilterLabels,
+    clearFilter,
+  } = usePropertyFilter(mockProperties, initialDistrict);
 
-      if (error) {
-        console.error("Supabase error:", error);
-        setProperties([]); // tránh crash UI
-      } else {
-        setProperties(data || []);
-      }
-
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-  const selectedSort = SORT_OPTIONS[0];
-
-  return (
-    <Layout>
-      <Helmet>
-        <title>Nhà đất bán tại Hà Nội – Mua bán bất động sản giá tốt | BatDongSan</title>
-      </Helmet>
-
-      <div className="container max-w-6xl mx-auto px-4 py-6">
-        <h1 className="text-xl font-bold mb-4">Nhà đất bán tại Hà Nội</h1>
-
-        {/* Tabs lọc */}
-        <FilterTabs />
-
-        {/* Hiển thị số lượng tin */}
-        <div className="flex items-center justify-between mt-4 mb-4">
-          <span className="text-gray-600">
-            Có <strong>{properties.length}</strong> bất động sản
-          </span>
-
-          {/* Chọn dạng hiển thị */}
-          <div className="flex gap-2">
-            <button onClick={() => setViewMode("list")}>
-              <List className={cn(viewMode === "list" && "text-primary")} />
-            </button>
-            <button onClick={() => setViewMode("grid")}>
-              <Grid3X3 className={cn(viewMode === "grid" && "text-primary")} />
-            </button>
-          </div>
-        </div>
-
-        {/* Loading */}
-        {loading && <p>Đang tải dữ liệu...</p>}
-
-        {/* Không có tin */}
-        {!loading && properties.length === 0 && (
-          <p className="text-center text-gray-500 mt-10">
-            Không có bất động sản nào.
-          </p>
-        )}
-
-        {/* Danh sách tin */}
-        <div
-          className={cn(
-            viewMode === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              : "space-y-4"
-          )}
-        >
-          {properties.map((item) => (
-            <PropertyCardNew key={item.id} {...item} />
-          ))}
-        </div>
-      </div>
-    </Layout>
-  );
-}
-
-
+  const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
 
   return (
     <Layout>
