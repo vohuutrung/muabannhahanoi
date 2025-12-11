@@ -56,35 +56,34 @@ export default function PropertyDetail() {
   }, [slugParam]);
 
   const fetchProperty = async () => {
-    try {
-      // Fetch all properties from public view
-      const { data, error } = await supabase
-        .from("properties_public")
-        .select("*");
+  try {
+    // 1) Tìm trong MOCK trước
+    const mock = mockProperties.find((p) => p.slug === slugParam);
 
-      if (error) {
-        console.error("Error fetching properties:", error);
-        setLoading(false);
-        return;
-      }
-
-      // Find the property whose title matches the slug
-      const foundProperty = data?.find((p: any) => p.title && slugify(p.title) === slugParam);
-      
-      if (foundProperty) {
-        setProperty(foundProperty as Property);
-        // Get similar properties (same district, different id)
-        const similar = data
-          ?.filter((p: any) => p.id !== foundProperty.id && p.district === foundProperty.district)
-          .slice(0, 4) || [];
-        setSimilarProperties(similar as Property[]);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
+    if (mock) {
+      setProperty(mock);
       setLoading(false);
+      return;
     }
-  };
+
+    // 2) Không có trong mock → tìm trong Supabase
+    const { data, error } = await supabase
+      .from("properties")
+      .select("*")
+      .eq("slug", slugParam)
+      .single();
+
+    if (!error && data) {
+      setProperty(data);
+    }
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const formatPrice = (price: number): string => {
     if (price >= 1000) {
