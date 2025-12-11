@@ -15,7 +15,6 @@ import { PropertyGallery } from "@/components/PropertyGallery";
 import { formatCurrency } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
-import { mockProperties } from "@/data/properties";
 
 interface Property {
   id: string;
@@ -57,34 +56,41 @@ export default function PropertyDetail() {
   }, [slugParam]);
 
   const fetchProperty = async () => {
-  try {
-    // 1) Tìm trong MOCK trước
-    const mock = mockProperties.find((p) => p.slug === slugParam);
+    try {
+      // Fetch all properties from public view (no RLS restrictions)
+      const { data, error } = await supabase
+        .from("properties_public")
+        .select("*");
 
-    if (mock) {
-      setProperty(mock);
+      if (error) {
+        console.error("Error fetching properties:", error);
+        setLoading(false);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.log("No properties found in database");
+        setLoading(false);
+        return;
+      }
+
+      // Find the property whose title matches the slug
+      const foundProperty = data.find((p) => p.title && slugify(p.title) === slugParam);
+      
+      if (foundProperty) {
+        setProperty(foundProperty as Property);
+        // Get similar properties (same district, different id)
+        const similar = data
+          .filter((p) => p.id !== foundProperty.id && p.district === foundProperty.district)
+          .slice(0, 4);
+        setSimilarProperties(similar as Property[]);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // 2) Không có trong mock → tìm trong Supabase
-    const { data, error } = await supabase
-      .from("properties")
-      .select("*")
-      .filter("slug", "eq", slugParam)
-      .single();
-
-    if (!error && data) {
-      setProperty(data);
-    }
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const formatPrice = (price: number): string => {
     if (price >= 1000) {
@@ -390,7 +396,7 @@ export default function PropertyDetail() {
 }
 
 /* COMPONENTS */
-function Info({ icon, label, value }) {
+function Info({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
     <div className="flex items-center gap-2">
       <div className="text-primary">{icon}</div>
@@ -402,7 +408,7 @@ function Info({ icon, label, value }) {
   );
 }
 
-function DetailRow({ label, value }) {
+function DetailRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
