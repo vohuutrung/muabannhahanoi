@@ -16,6 +16,8 @@ export default function Listing() {
   const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const filteredProperties = properties;
+
 
   const [viewMode, setViewMode] = useState("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
