@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -7,11 +7,11 @@ import { FilterTabs } from "@/components/FilterTabs";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { FilterModal } from "@/components/FilterModal";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/data/properties";
 import { usePropertyFilter } from "@/hooks/usePropertyFilter";
-import { SORT_OPTIONS, FilterState } from "@/types/property";
+import { SORT_OPTIONS, FilterState, Property } from "@/types/property";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Listing() {
   const [searchParams] = useSearchParams();
@@ -20,6 +20,30 @@ export default function Listing() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch dữ liệu từ Supabase thay cho mockProperties
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching properties:", error);
+      } else {
+        setProperties(data || []);
+      }
+
+      setLoading(false);
+    };
+
+    fetchProperties();
+  }, []);
 
   const {
     filters,
@@ -30,17 +54,20 @@ export default function Listing() {
     activeFiltersCount,
     getActiveFilterLabels,
     clearFilter,
-  } = usePropertyFilter(mockProperties, initialDistrict);
+  } = usePropertyFilter(properties, initialDistrict);
 
-  const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
+  const selectedSort =
+    SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
 
   return (
     <Layout>
       <Helmet>
-        <title>Nhà đất bán tại Hà Nội - Mua bán bất động sản giá tốt | BatDongSan</title>
-        <meta 
-          name="description" 
-          content="Tìm kiếm nhà đất bán tại Hà Nội. Hàng nghìn tin đăng mua bán nhà riêng, căn hộ, biệt thự, đất nền giá tốt. Cập nhật liên tục, thông tin chính xác." 
+        <title>
+          Nhà đất bán tại Hà Nội - Mua bán bất động sản giá tốt | BatDongSan
+        </title>
+        <meta
+          name="description"
+          content="Tìm kiếm nhà đất bán tại Hà Nội. Hàng nghìn tin đăng mua bán nhà riêng, căn hộ, biệt thự, đất nền giá tốt. Cập nhật liên tục, thông tin chính xác."
         />
       </Helmet>
 
@@ -67,7 +94,11 @@ export default function Listing() {
                 Nhà đất bán tại Hà Nội
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Hiện có <span className="text-primary font-semibold">{filteredProperties.length}</span> bất động sản
+                Hiện có{" "}
+                <span className="text-primary font-semibold">
+                  {filteredProperties.length}
+                </span>{" "}
+                bất động sản
               </p>
             </div>
 
@@ -95,7 +126,12 @@ export default function Listing() {
                   className="min-w-[160px] justify-between"
                 >
                   {selectedSort.label}
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", sortOpen && "rotate-180")} />
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 transition-transform",
+                      sortOpen && "rotate-180"
+                    )}
+                  />
                 </Button>
                 {sortOpen && (
                   <div className="absolute right-0 top-full mt-2 bg-card rounded-lg shadow-lg border border-border py-2 min-w-[200px] z-50 animate-fade-in">
@@ -103,12 +139,16 @@ export default function Listing() {
                       <button
                         key={option.value}
                         onClick={() => {
-                          updateFilter("sortBy", option.value as FilterState["sortBy"]);
+                          updateFilter(
+                            "sortBy",
+                            option.value as FilterState["sortBy"]
+                          );
                           setSortOpen(false);
                         }}
                         className={cn(
                           "w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors",
-                          filters.sortBy === option.value && "text-primary font-medium bg-accent"
+                          filters.sortBy === option.value &&
+                            "text-primary font-medium bg-accent"
                         )}
                       >
                         {option.label}
@@ -124,7 +164,9 @@ export default function Listing() {
                   onClick={() => setViewMode("grid")}
                   className={cn(
                     "p-2 transition-colors",
-                    viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                    viewMode === "grid"
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                   )}
                   aria-label="Xem dạng lưới"
                 >
@@ -134,7 +176,9 @@ export default function Listing() {
                   onClick={() => setViewMode("list")}
                   className={cn(
                     "p-2 transition-colors",
-                    viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                    viewMode === "list"
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                   )}
                   aria-label="Xem dạng danh sách"
                 >
@@ -167,7 +211,11 @@ export default function Listing() {
       {/* Content */}
       <div className="bg-background">
         <div className="container-custom py-6">
-          {filteredProperties.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg mb-4">Đang tải dữ liệu...</p>
+            </div>
+          ) : filteredProperties.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg mb-4">
                 Không tìm thấy bất động sản phù hợp với bộ lọc của bạn.
@@ -187,7 +235,11 @@ export default function Listing() {
               ) : (
                 <div className="space-y-4">
                   {filteredProperties.map((property) => (
-                    <PropertyCardNew key={property.id} property={property} variant="horizontal" />
+                    <PropertyCardNew
+                      key={property.id}
+                      property={property}
+                      variant="horizontal"
+                    />
                   ))}
                 </div>
               )}
@@ -217,8 +269,8 @@ export default function Listing() {
       </div>
 
       {/* Filter Modal - Mobile */}
-      <FilterModal 
-        isOpen={filterModalOpen} 
+      <FilterModal
+        isOpen={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
         filters={filters}
         onUpdateFilter={updateFilter}
