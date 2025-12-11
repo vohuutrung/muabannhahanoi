@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   Heart,
@@ -119,9 +119,9 @@ export default function PropertyDetail() {
       <div className="container py-10 text-center space-y-4">
         <h2 className="text-xl font-bold">Không tìm thấy tin</h2>
         <p className="text-muted-foreground">Tin đăng này có thể đã bị xóa hoặc không tồn tại.</p>
-        <a href="/" className="inline-block text-primary hover:underline">
+        <Link to="/" className="inline-block text-primary hover:underline">
           ← Quay về trang chủ
-        </a>
+        </Link>
       </div>
     );
   }
@@ -269,9 +269,9 @@ export default function PropertyDetail() {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {similarProperties.map((item) => (
-                    <a
+                    <Link
                       key={item.id}
-                      href={`/nha-dat-ban/${slugify(item.title || "")}`}
+                      to={`/nha-dat-ban/${slugify(item.title || "")}`}
                       className="block rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -292,7 +292,7 @@ export default function PropertyDetail() {
                         </div>
                         <div className="text-xs text-muted-foreground">Diện tích: {item.area} m²</div>
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </section>
