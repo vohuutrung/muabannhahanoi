@@ -15,6 +15,7 @@ import { PropertyGallery } from "@/components/PropertyGallery";
 import { formatCurrency } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
+import { mockProperties } from "@/data/properties";
 
 interface Property {
   id: string;
