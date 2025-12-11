@@ -71,7 +71,7 @@ export default function PropertyDetail() {
     const { data, error } = await supabase
       .from("properties")
       .select("*")
-      .eq("slug", slugParam)
+      .filter("slug", "eq", slugParam)
       .single();
 
     if (!error && data) {
