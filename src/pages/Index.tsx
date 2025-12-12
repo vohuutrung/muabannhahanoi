@@ -32,7 +32,7 @@ export default function Index() {
   const fetchPosts = async () => {
     try {
       const { data, error } = await supabase
-        .from("posts_public")
+        .from("properties")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(8);
@@ -56,9 +56,9 @@ export default function Index() {
         image: post.images?.[0] || "/placeholder.svg",
         images: post.images || [],
         postedDate: formatDate(post.created_at),
-        vipType: post.listing_type === "kimcuong" ? "KIMCUONG" : 
-                 post.listing_type === "vang" ? "VANG" : 
-                 post.listing_type === "bac" ? "BAC" : null,
+        vipType: post.vip_type === "kimcuong" ? "KIMCUONG" : 
+                 post.vip_type === "vang" ? "VANG" : 
+                 post.vip_type === "bac" ? "BAC" : null,
         district: post.district,
         description: post.description || undefined,
       }));

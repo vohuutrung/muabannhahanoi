@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid3X3, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -7,11 +7,11 @@ import { FilterTabs } from "@/components/FilterTabs";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { FilterModal } from "@/components/FilterModal";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/data/properties";
 import { usePropertyFilter } from "@/hooks/usePropertyFilter";
-import { SORT_OPTIONS, FilterState } from "@/types/property";
+import { SORT_OPTIONS, FilterState, Property } from "@/types/property";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Listing() {
   const [searchParams] = useSearchParams();
@@ -20,6 +20,88 @@ export default function Listing() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching properties:", error);
+        return;
+      }
+
+      // Map database data to Property type
+      const mappedProperties: Property[] = (data || []).map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: slugify(p.title),
+        price: formatPrice(p.price),
+        priceValue: p.price,
+        pricePerM2: p.area > 0 ? `~${formatPrice(p.price / p.area)}/m²` : undefined,
+        area: `${p.area} m²`,
+        areaValue: p.area,
+        address: [p.street, p.ward, p.district, p.city].filter(Boolean).join(", "),
+        district: slugify(p.district),
+        ward: p.ward || "",
+        bedrooms: p.bedrooms || undefined,
+        bathrooms: p.bathrooms || undefined,
+        floors: p.floors || undefined,
+        legalStatus: "Sổ đỏ",
+        interior: "Đầy đủ nội thất",
+        propertyType: "nha-rieng",
+        images: p.images || ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80"],
+        description: p.description || "",
+        postedDate: formatDate(p.created_at),
+        postedTimestamp: new Date(p.created_at).getTime(),
+        isHot: p.vip_type === "kimcuong" || p.vip_type === "KIMCUONG",
+        isVip: p.vip_type === "vang" || p.vip_type === "VANG" || p.vip_type === "bac" || p.vip_type === "BAC",
+        contact: { name: "Võ Hữu Trung", phone: "0996668800" },
+      }));
+
+      setProperties(mappedProperties);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatPrice = (price: number): string => {
+    if (price >= 1000) {
+      return `${(price / 1000).toFixed(1).replace(/\.0$/, "")} tỷ`;
+    }
+    return `${price} triệu`;
+  };
+
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Hôm nay";
+    if (diffDays === 1) return "Hôm qua";
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  function slugify(str: string) {
+    return str
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
 
   const {
     filters,
@@ -30,7 +112,7 @@ export default function Listing() {
     activeFiltersCount,
     getActiveFilterLabels,
     clearFilter,
-  } = usePropertyFilter(mockProperties, initialDistrict);
+  } = usePropertyFilter(properties, initialDistrict);
 
   const selectedSort = SORT_OPTIONS.find((o) => o.value === filters.sortBy) || SORT_OPTIONS[0];
 
@@ -167,7 +249,11 @@ export default function Listing() {
       {/* Content */}
       <div className="bg-background">
         <div className="container-custom py-6">
-          {filteredProperties.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">Đang tải...</p>
+            </div>
+          ) : filteredProperties.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg mb-4">
                 Không tìm thấy bất động sản phù hợp với bộ lọc của bạn.

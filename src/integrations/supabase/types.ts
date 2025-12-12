@@ -14,73 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
-      posts: {
-        Row: {
-          alley: string | null
-          area: number
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          created_at: string
-          description: string | null
-          district: string
-          floors: number | null
-          id: string
-          images: string[] | null
-          listing_type: string | null
-          price: number
-          street: string | null
-          title: string
-          updated_at: string
-          user_id: string | null
-          ward: string | null
-        }
-        Insert: {
-          alley?: string | null
-          area: number
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string
-          description?: string | null
-          district: string
-          floors?: number | null
-          id?: string
-          images?: string[] | null
-          listing_type?: string | null
-          price: number
-          street?: string | null
-          title: string
-          updated_at?: string
-          user_id?: string | null
-          ward?: string | null
-        }
-        Update: {
-          alley?: string | null
-          area?: number
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string
-          description?: string | null
-          district?: string
-          floors?: number | null
-          id?: string
-          images?: string[] | null
-          listing_type?: string | null
-          price?: number
-          street?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string | null
-          ward?: string | null
-        }
-        Relationships: []
-      }
       properties: {
         Row: {
-          alley: string | null
+          access_road: number | null
+          address: string | null
           area: number
+          balcony_direction: string | null
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
@@ -88,8 +27,12 @@ export type Database = {
           description: string | null
           district: string
           floors: number | null
+          frontage: number | null
+          house_direction: string | null
           id: string
           images: string[] | null
+          interior: string | null
+          legal_documents: string | null
           price: number
           street: string | null
           title: string
@@ -99,8 +42,10 @@ export type Database = {
           ward: string | null
         }
         Insert: {
-          alley?: string | null
+          access_road?: number | null
+          address?: string | null
           area: number
+          balcony_direction?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -108,8 +53,12 @@ export type Database = {
           description?: string | null
           district: string
           floors?: number | null
+          frontage?: number | null
+          house_direction?: string | null
           id?: string
           images?: string[] | null
+          interior?: string | null
+          legal_documents?: string | null
           price: number
           street?: string | null
           title: string
@@ -119,8 +68,10 @@ export type Database = {
           ward?: string | null
         }
         Update: {
-          alley?: string | null
+          access_road?: number | null
+          address?: string | null
           area?: number
+          balcony_direction?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -128,8 +79,12 @@ export type Database = {
           description?: string | null
           district?: string
           floors?: number | null
+          frontage?: number | null
+          house_direction?: string | null
           id?: string
           images?: string[] | null
+          interior?: string | null
+          legal_documents?: string | null
           price?: number
           street?: string | null
           title?: string
@@ -142,126 +97,7 @@ export type Database = {
       }
     }
     Views: {
-      posts_public: {
-        Row: {
-          alley: string | null
-          area: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          created_at: string | null
-          description: string | null
-          district: string | null
-          floors: number | null
-          id: string | null
-          images: string[] | null
-          listing_type: string | null
-          price: number | null
-          street: string | null
-          title: string | null
-          updated_at: string | null
-          ward: string | null
-        }
-        Insert: {
-          alley?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          district?: string | null
-          floors?: number | null
-          id?: string | null
-          images?: string[] | null
-          listing_type?: string | null
-          price?: number | null
-          street?: string | null
-          title?: string | null
-          updated_at?: string | null
-          ward?: string | null
-        }
-        Update: {
-          alley?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          district?: string | null
-          floors?: number | null
-          id?: string | null
-          images?: string[] | null
-          listing_type?: string | null
-          price?: number | null
-          street?: string | null
-          title?: string | null
-          updated_at?: string | null
-          ward?: string | null
-        }
-        Relationships: []
-      }
-      properties_public: {
-        Row: {
-          alley: string | null
-          area: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          created_at: string | null
-          description: string | null
-          district: string | null
-          floors: number | null
-          id: string | null
-          images: string[] | null
-          price: number | null
-          street: string | null
-          title: string | null
-          updated_at: string | null
-          vip_type: string | null
-          ward: string | null
-        }
-        Insert: {
-          alley?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          district?: string | null
-          floors?: number | null
-          id?: string | null
-          images?: string[] | null
-          price?: number | null
-          street?: string | null
-          title?: string | null
-          updated_at?: string | null
-          vip_type?: string | null
-          ward?: string | null
-        }
-        Update: {
-          alley?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          district?: string | null
-          floors?: number | null
-          id?: string | null
-          images?: string[] | null
-          price?: number | null
-          street?: string | null
-          title?: string | null
-          updated_at?: string | null
-          vip_type?: string | null
-          ward?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Listing from "./pages/Listing";
+import EditPropertyPage from "./pages/EditPropertyPage";
 import PropertyDetail from "./pages/PropertyDetail";
 import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
@@ -43,6 +44,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <PostPropertyPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <EditPropertyPage />
                     </ProtectedRoute>
                   } 
                 />
